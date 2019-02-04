@@ -1,6 +1,6 @@
 {
   "name": "market-talk",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "Market Talk Bot for TurtleCoin",
   "main": "bot.js",
   "author": "ExtraHash",
@@ -9,5 +9,25 @@
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
     "winston": "^3.2.1"
-  }
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ExtraHash/Market-Talk.git"
+  },
+  "keywords": [
+    "market",
+    "talk",
+    "turtlecoin",
+    "trtl",
+    "cryptocurrency"
+  ],
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/ExtraHash/Market-Talk/issues"
+  },
+  "homepage": "https://github.com/ExtraHash/Market-Talk#readme"
 }
