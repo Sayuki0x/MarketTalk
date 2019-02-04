@@ -16,7 +16,8 @@ function numberWithCommas(x) {
     var ogreBTCInfo = await getogreBTCInfo();
     var geckoInfo = await getgeckoInfo();
     var pricePerMillion =  geckoInfo.current_price*1000000
-
+    var litPrice = Math.round(ogreLTCInfo.price*100000000)
+    var satPrice = Math.round(ogreBTCInfo.price*100000000)
 // BOT CODE
 
 // Configure logger settings
@@ -36,7 +37,6 @@ bot.on('ready', function (evt) {
     logger.info(bot.username + ' - (' + bot.id + ')');
 });
 bot.on('message', function (user, userID, channelID, message, evt) {
-    // Our bot needs to know if it will execute a command
     // It will listen for messages that will start with `!`
     if (message.substring(0, 1) == '!') {
         var args = message.substring(1).split(' ');
@@ -44,22 +44,22 @@ bot.on('message', function (user, userID, channelID, message, evt) {
        
         args = args.splice(1);
         switch(cmd) {
-            // !ping
+            // !price
             case 'price':
                 bot.sendMessage({
                     to: channelID,
-                    message: `**Rank:** ${geckoInfo.market_cap_rank}\n\n` +
-                             `**Price LTC:** ${ogreLTCInfo.price} LTC\n` +
-                             `**Price BTC:** ${ogreBTCInfo.price} BTC\n` +
-                             `**Price USD Per Million:** $${pricePerMillion.toFixed(2)}\n` +
-                             `**Price USD:** $${geckoInfo.current_price.toFixed(8)}\n\n` +
+                    message: `## **TurtleCoin Market Info** ##\n` +
+                             `**Rank:** ${geckoInfo.market_cap_rank}\n\n` +
+                             `**Price LTC:** ${litPrice.toFixed(0)} litoshi\n` +
+                             `**Price BTC:** ${satPrice.toFixed(0)} satoshi\n` +
+                             `**Price USD Per Million:** $${pricePerMillion.toFixed(2)}\n\n` +
                              `**24h Change:** ${geckoInfo.price_change_percentage_24h.toFixed(2)}%\n` +
                              `**24h Volume:** $${numberWithCommas(geckoInfo.total_volume.toFixed(2))}\n` +
                              `**Market Cap:** $${numberWithCommas(geckoInfo.market_cap.toFixed(2))}\n` +
-                             `**Current Supply:** ${numberWithCommas(geckoInfo.circulating_supply)} TRTL\n`
+                             `**Current Supply:** ${numberWithCommas(geckoInfo.circulating_supply)} TRTL`
                 });
             break;
-            // Just add any case commands if you want to..
+            // add case commands here
          }
      }
 });
