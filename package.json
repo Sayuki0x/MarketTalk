@@ -1,0 +1,13 @@
+{
+  "name": "market-talk",
+  "version": "0.0.3",
+  "description": "Market Talk Bot for TurtleCoin",
+  "main": "bot.js",
+  "author": "ExtraHash",
+  "dependencies": {
+    "discord.io": "https://github.com/woor/discord.io/tarball/gateway_v6",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.2",
+    "winston": "^3.2.1"
+  }
+}
