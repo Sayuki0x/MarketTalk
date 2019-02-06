@@ -6,6 +6,7 @@ const request = require('request-promise');
 // DATA CODE
 
 // format numbers with commas like currency
+
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
@@ -18,7 +19,7 @@ function numberWithCommas(x) {
     var pricePerMillion =  geckoInfo.current_price*1000000
     var litPrice = Math.round(ogreLTCInfo.price*100000000)
     var satPrice = Math.round(ogreBTCInfo.price*100000000)
-
+ 
     setInterval(getogreBTCInfo,5000)
     setInterval(getogreLTCInfo,5000)
     setInterval(getgeckoInfo,5000)
@@ -27,12 +28,15 @@ function numberWithCommas(x) {
 // BOT CODE
 
 // Configure logger settings
+
 logger.remove(logger.transports.Console);
 logger.add(new logger.transports.Console, {
     colorize: true
 });
 logger.level = 'debug';
+
 // Initialize Discord Bot
+
 var bot = new Discord.Client({
    token: auth.token,
    autorun: true
@@ -43,14 +47,18 @@ bot.on('ready', function (evt) {
     logger.info(bot.username + ' - (' + bot.id + ')');
 });
 bot.on('message', function (user, userID, channelID, message, evt) {
+
     // It will listen for messages that will start with `!`
+
     if (message.substring(0, 1) == '!') {
         var args = message.substring(1).split(' ');
         var cmd = args[0];
        
         args = args.splice(1);
         switch(cmd) {
+
             // !price
+
             case 'price':
                 bot.sendMessage({
                     to: channelID,
@@ -65,7 +73,9 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                              `**Current Supply:** ${numberWithCommas(geckoInfo.circulating_supply)} TRTL`
                 });
             break;
+
             // add case commands here
+
          }
      }
 });
@@ -74,6 +84,8 @@ bot.on('message', function (user, userID, channelID, message, evt) {
 })().catch(err => {
     console.log('Async function failed:', err);
 });
+
+// get LTC Info from TradeOgre
 
 async function getogreLTCInfo() {
     const requestOptions = {
@@ -95,6 +107,8 @@ async function getogreLTCInfo() {
     }
 }
 
+// get BTC Info from TradeOgre
+
 async function getogreBTCInfo() {
     const requestOptions = {
         method: 'GET',
@@ -115,6 +129,7 @@ async function getogreBTCInfo() {
     }
 }
 
+// get TRTL Info from CoinGecko
 
 async function getgeckoInfo() {
     const requestOptions = {
@@ -135,4 +150,3 @@ async function getgeckoInfo() {
         return undefined;
     }
 }
-
