@@ -3,6 +3,10 @@ var logger = require('winston');
 var auth = require('./auth.json');
 const request = require('request-promise');
 
+var geckoInfo = { id: 'turtlecoin' };
+var ogreLTCInfo = { success : true };
+var ogreBTCInfo = { succces : true };
+
 // DATA CODE
 
 // format numbers with commas like currency
@@ -18,6 +22,12 @@ function numberWithCommas(x) {
     var pricePerMillion =  geckoInfo.current_price*1000000
     var litPrice = Math.round(ogreLTCInfo.price*100000000)
     var satPrice = Math.round(ogreBTCInfo.price*100000000)
+
+    setInterval(getogreBTCInfo,5000)
+    setInterval(getogreLTCInfo,5000)
+    setInterval(getgeckoInfo,5000)
+
+
 // BOT CODE
 
 // Configure logger settings
@@ -81,6 +91,8 @@ async function getogreLTCInfo() {
 
     try {
         const result = await request(requestOptions);
+        ogreLTCInfo = result;
+        console.log(result);
         return result;
     } catch (err) {
         console.log('Request failed, TradeOgre API call error:', err);
@@ -100,6 +112,8 @@ async function getogreBTCInfo() {
 
     try {
         const result = await request(requestOptions);
+        ogreBTCInfo = result;
+        console.log(result);
         return result;
     } catch (err) {
         console.log('Request failed, TradeOgre API call error:', err);
@@ -120,6 +134,9 @@ async function getgeckoInfo() {
 
     try {
         const result = await request(requestOptions);
+        geckoInfo = result[0];
+        console.log(result[0]);
+        
         return result[0];
     } catch (err) {
         console.log('Request failed, CoinGecko API call error:', err);
