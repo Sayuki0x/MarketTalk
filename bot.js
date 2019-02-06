@@ -1,6 +1,6 @@
-var Discord = require('discord.io');
-var logger = require('winston');
-var auth = require('./auth.json');
+const discord = require('discord.io');
+const logger = require('winston');
+const auth = require('./auth.json');
 const request = require('request-promise');
 
 // DATA CODE
@@ -11,83 +11,85 @@ function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-(async () => {
+const Globals = {
+    ogreLTCInfo: undefined,
+    ogreBTCInfo: undefined,
+    geckoInfo: undefined,
+    pricePerMillion: undefined,
+    litPrice: undefined,
+    satPrice: undefined,
+};
 
-    var ogreLTCInfo = await getogreLTCInfo();
-    var ogreBTCInfo = await getogreBTCInfo();
-    var geckoInfo = await getgeckoInfo();
-    var pricePerMillion =  geckoInfo.current_price*1000000
-    var litPrice = Math.round(ogreLTCInfo.price*100000000)
-    var satPrice = Math.round(ogreBTCInfo.price*100000000)
- 
-    setInterval(getogreBTCInfo,5000)
-    setInterval(getogreLTCInfo,5000)
-    setInterval(getgeckoInfo,5000)
+async function update() {
+    Globals.ogreLTCInfo = await getOgreLTCInfo();
+    Globals.ogreBTCInfo = await getOgreBTCInfo();
+    Globals.geckoInfo = await getGeckoInfo();
+    Globals.pricePerMillion =  Globals.geckoInfo.current_price * 1000000;
+    Globals.litPrice = Math.round(Globals.ogreLTCInfo.price * 100000000);
+    Globals.satPrice = Math.round(Globals.ogreBTCInfo.price * 100000000);
+}
 
+async function init() {
+    await update();
+
+    setInterval(update, 5000);
+}
 
 // BOT CODE
 
 // Configure logger settings
 
 logger.remove(logger.transports.Console);
+
 logger.add(new logger.transports.Console, {
     colorize: true
 });
+
 logger.level = 'debug';
 
 // Initialize Discord Bot
 
-var bot = new Discord.Client({
-   token: auth.token,
-   autorun: true
+(async () => {
+    await init();
+})()
+
+const bot = new discord.Client({
+    token: auth.token,
+    autorun: true
 });
-bot.on('ready', function (evt) {
+
+bot.on('ready', (evt) => {
     logger.info('Connected');
     logger.info('Logged in as: ');
     logger.info(bot.username + ' - (' + bot.id + ')');
 });
-bot.on('message', function (user, userID, channelID, message, evt) {
+
+bot.on('message', (user, userID, channelID, message, evt) => {
 
     // It will listen for messages that will start with `!`
+    if (message[0] === '!') {
+        const [cmd, args] = message.substring(1).split(' ');
 
-    if (message.substring(0, 1) == '!') {
-        var args = message.substring(1).split(' ');
-        var cmd = args[0];
-       
-        args = args.splice(1);
-        switch(cmd) {
-
-            // !price
-
-            case 'price':
-                bot.sendMessage({
-                    to: channelID,
-                    message: `## **TurtleCoin Market Info** ##\n` +
-                             `**Rank:** ${geckoInfo.market_cap_rank}\n\n` +
-                             `**Price LTC:** ${litPrice.toFixed(0)} litoshi\n` +
-                             `**Price BTC:** ${satPrice.toFixed(0)} satoshi\n` +
-                             `**Price USD Per Million:** $${pricePerMillion.toFixed(2)}\n\n` +
-                             `**24h Change:** ${geckoInfo.price_change_percentage_24h.toFixed(2)}%\n` +
-                             `**24h Volume:** $${numberWithCommas(geckoInfo.total_volume.toFixed(2))}\n` +
-                             `**Market Cap:** $${numberWithCommas(geckoInfo.market_cap.toFixed(2))}\n` +
-                             `**Current Supply:** ${numberWithCommas(geckoInfo.circulating_supply)} TRTL`
-                });
-            break;
-
-            // add case commands here
-
-         }
-     }
-});
-
-
-})().catch(err => {
-    console.log('Async function failed:', err);
+        if (cmd === 'price') {
+            bot.sendMessage({
+                to: channelID,
+                message: `## **TurtleCoin Market Info** ##\n` +
+                         `**Rank:** ${Globals.geckoInfo.market_cap_rank}\n\n` +
+                         `**Price LTC:** ${Globals.litPrice.toFixed(0)} litoshi\n` +
+                         `**Price BTC:** ${Globals.satPrice.toFixed(0)} satoshi\n` +
+                         `**Price USD Per Million:** $${Globals.pricePerMillion.toFixed(2)}\n\n` +
+                         `**24h Change:** ${Globals.geckoInfo.price_change_percentage_24h.toFixed(2)}%\n` +
+                         `**24h Volume:** $${numberWithCommas(Globals.geckoInfo.total_volume.toFixed(2))}\n` +
+                         `**Market Cap:** $${numberWithCommas(Globals.geckoInfo.market_cap.toFixed(2))}\n` +
+                         `**Current Supply:** ${numberWithCommas(Globals.geckoInfo.circulating_supply)} TRTL`
+            });
+        }
+    }
 });
 
 // get LTC Info from TradeOgre
 
-async function getogreLTCInfo() {
+async function getOgreLTCInfo() {
     const requestOptions = {
         method: 'GET',
         uri: 'https://tradeogre.com/api/v1/ticker/LTC-TRTL',
@@ -96,7 +98,6 @@ async function getogreLTCInfo() {
         gzip: true
     };
  
-
     try {
         const result = await request(requestOptions);
         console.log(result);
@@ -109,7 +110,7 @@ async function getogreLTCInfo() {
 
 // get BTC Info from TradeOgre
 
-async function getogreBTCInfo() {
+async function getOgreBTCInfo() {
     const requestOptions = {
         method: 'GET',
         uri: 'https://tradeogre.com/api/v1/ticker/BTC-TRTL',
@@ -117,7 +118,6 @@ async function getogreBTCInfo() {
         json: true,
         gzip: true
     };
-
 
     try {
         const result = await request(requestOptions);
@@ -131,7 +131,7 @@ async function getogreBTCInfo() {
 
 // get TRTL Info from CoinGecko
 
-async function getgeckoInfo() {
+async function getGeckoInfo() {
     const requestOptions = {
         method: 'GET',
         uri: 
