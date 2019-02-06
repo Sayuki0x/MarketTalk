@@ -73,7 +73,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
         if (cmd === 'price') {
             bot.sendMessage({
                 to: channelID,
-                message: `## **TurtleCoin Market Info** ##\n` +
+                message: `## **TurtleCoin Market Info** ##\n\n` +
                          `**Rank:** ${Globals.geckoInfo.market_cap_rank}\n\n` +
                          `**Price LTC:** ${Globals.litPrice.toFixed(0)} litoshi\n` +
                          `**Price BTC:** ${Globals.satPrice.toFixed(0)} satoshi\n` +
