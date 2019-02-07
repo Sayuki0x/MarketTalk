@@ -19,6 +19,9 @@ const Globals = {
     litPrice: undefined,
     satPrice: undefined,
     networkInfo: undefined,
+    avgTx: undefined,
+    netHash: undefined,
+    totalNodes: undefined,
 };
 
 async function update() {
@@ -26,14 +29,17 @@ async function update() {
     Globals.ogreBTCInfo = await getOgreBTCInfo();
     Globals.geckoInfo = await getGeckoInfo();
     Globals.networkInfo = await getNetworkInfo();
+    Globals.totalNodes = await getTotalNodes();
     Globals.pricePerMillion =  Globals.geckoInfo.current_price * 1000000;
     Globals.litPrice = Math.round(Globals.ogreLTCInfo.price * 100000000);
     Globals.satPrice = Math.round(Globals.ogreBTCInfo.price * 100000000);
     Globals.avgTx = Globals.networkInfo.tx_count / Globals.networkInfo.height;
+    Globals.netHash = Globals.networkInfo.hashrate / 1000000
 }
 
 async function init() {
     await update();
+
     setInterval(update, 5000);
 }
 
@@ -69,21 +75,21 @@ bot.on('ready', (evt) => {
 bot.on('message', (user, userID, channelID, message, evt) => {
 
     // It will listen for messages that will start with `!`
-    if (message[0] === '~') {
+    if (message[0] === '!') {
         const [cmd, args] = message.substring(1).split(' ');
 
         if (cmd === 'price') {
             bot.sendMessage({
                 to: channelID,
                 message: `## **TurtleCoin Market Info** ##\n\n` +
-                         `**Rank:** ${Globals.geckoInfo.market_cap_rank}\n\n` +
-                         `**Price LTC:** ${Globals.litPrice.toFixed(0)} litoshi\n` +
-                         `**Price BTC:** ${Globals.satPrice.toFixed(0)} satoshi\n` +
-                         `**Price USD Per Million:** $${Globals.pricePerMillion.toFixed(2)}\n\n` +
-                         `**24h Change:** ${Globals.geckoInfo.price_change_percentage_24h.toFixed(2)}%\n` +
-                         `**24h Volume:** $${numberWithCommas(Globals.geckoInfo.total_volume.toFixed(2))}\n` +
-                         `**Market Cap:** $${numberWithCommas(Globals.geckoInfo.market_cap.toFixed(2))}\n` +
-                         `**Current Supply:** ${numberWithCommas(Globals.geckoInfo.circulating_supply)} TRTL`
+                         `Rank: **${Globals.geckoInfo.market_cap_rank}**\n\n` +
+                         `Price LTC: **${Globals.litPrice.toFixed(0)} litoshi**\n` +
+                         `Price BTC: **${Globals.satPrice.toFixed(0)} satoshi**\n` +
+                         `Price USD Per Million: **$${Globals.pricePerMillion.toFixed(2)}**\n\n` +
+                         `24h Change: **${Globals.geckoInfo.price_change_percentage_24h.toFixed(2)}%**\n` +
+                         `24h Volume: **$${numberWithCommas(Globals.geckoInfo.total_volume.toFixed(2))}**\n` +
+                         `Market Cap: **$${numberWithCommas(Globals.geckoInfo.market_cap.toFixed(2))}**\n` +
+                         `Current Supply: **${numberWithCommas(Globals.geckoInfo.circulating_supply)} TRTL**`
             });
         }
 
@@ -91,11 +97,11 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             bot.sendMessage({
                 to: channelID,
                 message: `## **TurtleCoin Network Info** ##\n\n` +
-                         `**Network Hashrate:** ${Globals.networkInfo.hashrate}\n` +
-                         `**Difficulty:** ${Globals.networkInfo.difficulty}\n` +
-                         `**Current Height:** ${numberWithCommas(Globals.networkInfo.height)}\n` +
-                         `**Average Transactions per Block:** ${Globals.avgTx}\n` +
-                         `**Active Node Count:**\n`
+                         `Network Hashrate: **${Globals.netHash.toFixed(2)} MH/s**\n` +
+                         `Difficulty: **${Globals.networkInfo.difficulty}**\n` +
+                         `Current Height: **${numberWithCommas(Globals.networkInfo.height)}**\n` +
+                         `Average Transactions per Block: **${Globals.avgTx.toFixed(2)}**\n` +
+                         `Total Nodes: **${Globals.totalNodes}**`
             });
         }
 
@@ -166,7 +172,7 @@ async function getGeckoInfo() {
     }
 }
 
-// get TRTL Info from CoinGecko
+// get TRTL Network Info from HashVault node
 
 async function getNetworkInfo() {
     const requestOptions = {
@@ -183,7 +189,29 @@ async function getNetworkInfo() {
         console.log(result);
         return result;
     } catch (err) {
-        console.log('Request failed, CoinGecko API call error:', err);
+        console.log('Request failed, HashVault Node API call error:', err);
+        return undefined;
+    }
+}
+
+// get TRTL Network Info from ShellMaps
+
+async function getTotalNodes() {
+    const requestOptions = {
+        method: 'GET',
+        uri:
+'https://shellmap.mine2gether.com/api/stats',
+        headers: {},
+        json: true,
+        gzip: true
+    };
+
+    try {
+        const result = await request(requestOptions);
+        console.log(`Shellmaps Total Node Count: ${result.globalData.nodeCount}`);
+        return result.globalData.nodeCount;
+    } catch (err) {
+        console.log('Request failed, ShellMaps API call error:', err);
         return undefined;
     }
 }
