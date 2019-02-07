@@ -98,7 +98,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                 to: channelID,
                 message: `## **TurtleCoin Network Info** ##\n\n` +
                          `Network Hashrate: **${Globals.netHash.toFixed(2)} MH/s**\n` +
-                         `Difficulty: **${Globals.networkInfo.difficulty}**\n` +
+                         `Difficulty: **${numberWithCommas(Globals.networkInfo.difficulty)}**\n` +
                          `Current Height: **${numberWithCommas(Globals.networkInfo.height)}**\n` +
                          `Average Transactions per Block: **${Globals.avgTx.toFixed(2)}**\n` +
                          `Total Nodes: **${Globals.totalNodes}**`
