@@ -100,8 +100,8 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                          `Network Hashrate: **${Globals.netHash.toFixed(2)} MH/s**\n` +
                          `Difficulty: **${numberWithCommas(Globals.networkInfo.difficulty)}**\n` +
                          `Current Height: **${numberWithCommas(Globals.networkInfo.height)}**\n` +
-                         `Average Transactions per Block: **${Globals.avgTx.toFixed(2)}**\n` +
-                         `Total Nodes: **${Globals.totalNodes}**`
+                         `Avg Tx per Block: **${Globals.avgTx.toFixed(2)}**\n` +
+                         `Total Nodes: **${numberWithCommas(Globals.totalNodes)}**`
             });
         }
 
