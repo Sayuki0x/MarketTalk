@@ -1,6 +1,6 @@
 {
   "name": "market-talk",
-  "version": "0.1.0",
+  "version": "0.1.7",
   "description": "Market Talk Bot for TurtleCoin",
   "main": "bot.js",
   "author": "ExtraHash",

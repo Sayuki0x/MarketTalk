@@ -105,6 +105,16 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             });
         }
 
+		if (cmd === 'help') {
+            bot.sendMessage({
+                to: channelID,
+                message: `## **MarketTalk Commands:** ##\n` +
+                         `\`\`\`!help : Displays this menu.\n` +
+						 `!price : Displays price information.\n` +
+                         `!network : Displays network information.\`\`\``
+            });
+        }
+
     }
 });
 
