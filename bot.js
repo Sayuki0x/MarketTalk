@@ -91,7 +91,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
         if (cmd === 'price') {
             bot.sendMessage({
                 to: channelID,
-                message: `🐢 TurtleCoin Market Info 🐢\n\n` +
+                message: `🐢 **TurtleCoin Market Info** 🐢\n\n` +
                          `Rank: **${Globals.geckoInfo.market_cap_rank}**\n\n` +
                          `Price LTC: **${Globals.litPrice.toFixed(0)} litoshi**\n` +
                          `Price BTC: **${Globals.satPrice.toFixed(0)} satoshi**\n` +
@@ -111,11 +111,11 @@ bot.on('message', (user, userID, channelID, message, evt) => {
 		if (cmd === 'network') {
             bot.sendMessage({
                 to: channelID,
-                message: `🐢 TurtleCoin Network Info 🐢\n\n` +
+                message: `🐢 **TurtleCoin Network Info** 🐢\n\n` +
                          `Network Hashrate: **${Globals.netHash.toFixed(2)} MH/s**\n` +
                          `Current Height: **${numberWithCommas(Globals.networkInfo.height)}**\n\n` +
-                         `Difficulty: **${numberWithCommas(Globals.networkInfo.difficulty)}**\n` +
                          `Avg TX/Block: **${Globals.avgTx.toFixed(2)}**\n` +
+						 `TX in Mempool: **${numberWithCommas(Globals.networkInfo.tx_pool_size)}**\n` +
                          `Total Nodes: **${numberWithCommas(Globals.totalNodes)}**`
             });
         }
@@ -123,7 +123,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
 		if (cmd === 'help') {
             bot.sendMessage({
                 to: channelID,
-                message: `🐢 MarketTalk Commands: 🐢\n` +
+                message: `🐢 **MarketTalk Commands:** 🐢\n` +
                          `\`\`\`!help : Displays this menu.\n` +
 						 `!price : Displays price information.\n` +
                          `!network : Displays network information.\`\`\``
