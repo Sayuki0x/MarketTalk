@@ -22,9 +22,11 @@ const Globals = {
     avgTx: undefined,
     netHash: undefined,
     totalNodes: undefined,
+	gainsEmoji: undefined,
 };
 
 async function update() {
+	
     Globals.ogreLTCInfo = await getOgreLTCInfo();
     Globals.ogreBTCInfo = await getOgreBTCInfo();
     Globals.geckoInfo = await getGeckoInfo();
@@ -35,6 +37,14 @@ async function update() {
     Globals.satPrice = Math.round(Globals.ogreBTCInfo.price * 100000000);
     Globals.avgTx = Globals.networkInfo.tx_count / Globals.networkInfo.height;
     Globals.netHash = Globals.networkInfo.hashrate / 1000000
+	
+	if (Globals.geckoInfo.price_change_percentage_24h > 0) {
+		Globals.gainsEmoji = `📈`;
+	}
+	else {
+		Globals.gainsEmoji = `📉`;
+	}
+	
 }
 
 async function init() {
@@ -86,11 +96,16 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                          `Price LTC: **${Globals.litPrice.toFixed(0)} litoshi**\n` +
                          `Price BTC: **${Globals.satPrice.toFixed(0)} satoshi**\n` +
                          `Price USD Per Million: **$${Globals.pricePerMillion.toFixed(2)}**\n\n` +
-                         `24h Change: **${Globals.geckoInfo.price_change_percentage_24h.toFixed(2)}%**\n` +
+                         `24h Change: **${Globals.geckoInfo.price_change_percentage_24h.toFixed(2)}%** ${Globals.gainsEmoji}\n` +
                          `24h Volume: **$${numberWithCommas(Globals.geckoInfo.total_volume.toFixed(2))}**\n` +
                          `Market Cap: **$${numberWithCommas(Globals.geckoInfo.market_cap.toFixed(2))}**\n` +
                          `Current Supply: **${numberWithCommas(Globals.geckoInfo.circulating_supply)} TRTL**`
             });
+			
+		if (cmd === 'price') {
+		   // bot..sendMessage(`📈`);
+		};
+			
         }
 
 		if (cmd === 'network') {
