@@ -27,7 +27,7 @@ const Globals = {
 };
 
 async function update() {
-	
+
     Globals.ogreLTCInfo = await getOgreLTCInfo();
     Globals.ogreBTCInfo = await getOgreBTCInfo();
     Globals.geckoInfo = await getGeckoInfo();
@@ -39,14 +39,14 @@ async function update() {
     Globals.satPrice = Math.round(Globals.ogreBTCInfo.price * 100000000);
     Globals.avgTx = Globals.networkInfo.tx_count / Globals.networkInfo.height;
     Globals.netHash = Globals.networkInfo.hashrate / 1000000
-	
+
 	if (Globals.geckoInfo.price_change_percentage_24h > 0) {
 		Globals.gainsEmoji = `📈`;
 	}
 	else {
 		Globals.gainsEmoji = `📉`;
 	}
-	
+
 }
 
 async function init() {
@@ -87,6 +87,11 @@ bot.on('ready', (evt) => {
 bot.on('message', (user, userID, channelID, message, evt) => {
 
     // It will listen for messages that will start with `!`
+	
+	    if (message[0] === '!') {
+		    const [cmd, args] = message.substring(1).split(' ');
+		}
+
     if (message[0] === '!') {
         const [cmd, args] = message.substring(1).split(' ');
 
@@ -103,12 +108,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                          `Market Cap: **$${numberWithCommas(Globals.geckoInfo.market_cap.toFixed(2))}**\n` +
                          `Current Supply: **${numberWithCommas(Globals.geckoInfo.circulating_supply)} TRTL**`
             });
-
-		if (cmd === 'price') {
-		   // bot..sendMessage(`📈`);
-		};
-
-            }
+        }
 
 		if (cmd === 'network') {
             bot.sendMessage({
@@ -121,7 +121,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                          `Total Nodes: **${numberWithCommas(Globals.totalNodes)}**`
             });
         }
-
+	
 		if (cmd === 'market') {
             bot.sendMessage({
                 to: channelID,
