@@ -88,10 +88,6 @@ bot.on('message', (user, userID, channelID, message, evt) => {
 
     // It will listen for messages that will start with `!`
 	
-	    if (message[0] === '!') {
-		    const [cmd, args] = message.substring(1).split(' ');
-		}
-
     if (message[0] === '!') {
         const [cmd, args] = message.substring(1).split(' ');
 
