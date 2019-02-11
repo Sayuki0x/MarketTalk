@@ -1,5 +1,4 @@
 const discord = require('discord.io');
-const logger = require('winston');
 const auth = require('./auth.json');
 const request = require('request-promise');
 
@@ -53,18 +52,6 @@ async function init() {
     setInterval(update, 5000);
 }
 
-// BOT CODE
-
-// Configure logger settings
-
-logger.remove(logger.transports.Console);
-
-logger.add(new logger.transports.Console, {
-    colorize: true
-});
-
-logger.level = 'debug';
-
 // Initialize Discord Bot
 (async () => {
     await init();
@@ -76,9 +63,7 @@ const bot = new discord.Client({
 });
 
 bot.on('ready', (evt) => {
-    logger.info('Connected');
-    logger.info('Logged in as: ');
-    logger.info(bot.username + ' - (' + bot.id + ')');
+    console.log(`** Connected, logged in as ${bot.username}-${bot.id}`);
 });
 
 bot.on('error', console.error);
