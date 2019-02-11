@@ -140,6 +140,13 @@ bot.on('message', (user, userID, channelID, message, evt) => {
 
             });
         }
+		
+		if (cmd === 'embed') {
+            bot.sendMessage({embed: {
+				color: 3447003,
+				description: "A very simple Embed!"
+			}});
+        }
 
 
 		if (cmd === 'help') {
