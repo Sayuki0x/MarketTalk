@@ -32,14 +32,16 @@ async function update() {
     Globals.networkInfo = await getNetworkInfo();
     Globals.totalNodes = await getTotalNodes();
     Globals.top10 = await getTop10();
-    Globals.pricePerMillion =  Globals.geckoInfo.current_price * 1000000;
+    Globals.pricePerMillion = Globals.geckoInfo.current_price * 1000000;
     Globals.litPrice = Math.round(Globals.ogreLTCInfo.price * 100000000);
     Globals.satPrice = Math.round(Globals.ogreBTCInfo.price * 100000000);
     Globals.avgTx = Globals.networkInfo.tx_count / Globals.networkInfo.height;
     Globals.netHash = Globals.networkInfo.hashrate / 1000000
-	  if (Globals.geckoInfo.price_change_percentage_24h > 0) {
-		    Globals.gainsEmoji = `📈`;}
-	      else {Globals.gainsEmoji = `📉`;}
+    if (Globals.geckoInfo.price_change_percentage_24h > 0) {
+        Globals.gainsEmoji = `📈`;
+    } else {
+        Globals.gainsEmoji = `📉`;
+    }
 }
 
 // updates the variables every 5 seconds
@@ -68,42 +70,42 @@ bot.on('message', (user, userID, channelID, message, evt) => {
 
     // It will listen for messages that will start with `!`
     if (message[0] === '!') {
-       const [cmd, args] = message.substring(1).split(' ');
+        const [cmd, args] = message.substring(1).split(' ');
 
-    if (cmd === 'price') {
-        bot.sendMessage({
-            to: channelID,
-            message: `🐢 **TurtleCoin Market Info** 🐢\n\n` +
-                     `Rank: **${Globals.geckoInfo.market_cap_rank}**\n\n` +
-                     `Price LTC: **${Globals.litPrice.toFixed(0)} litoshi**\n` +
-                     `Price BTC: **${Globals.satPrice.toFixed(0)} satoshi**\n` +
-                     `Price USD Per Million: **$${Globals.pricePerMillion.toFixed(2)}**\n\n` +
-                     `24h Change: **${Globals.geckoInfo.price_change_percentage_24h.toFixed(2)}%** ${Globals.gainsEmoji}\n` +
-                     `24h Volume: **$${numberWithCommas(Globals.geckoInfo.total_volume.toFixed(2))}**\n` +
-                     `Market Cap: **$${numberWithCommas(Globals.geckoInfo.market_cap.toFixed(2))}**\n` +
-                     `Current Supply: **${numberWithCommas(Globals.geckoInfo.circulating_supply)} TRTL**`
+        if (cmd === 'price') {
+            bot.sendMessage({
+                to: channelID,
+                message: `🐢 **TurtleCoin Market Info** 🐢\n\n` +
+                    `Rank: **${Globals.geckoInfo.market_cap_rank}**\n\n` +
+                    `Price LTC: **${Globals.litPrice.toFixed(0)} litoshi**\n` +
+                    `Price BTC: **${Globals.satPrice.toFixed(0)} satoshi**\n` +
+                    `Price USD Per Million: **$${Globals.pricePerMillion.toFixed(2)}**\n\n` +
+                    `24h Change: **${Globals.geckoInfo.price_change_percentage_24h.toFixed(2)}%** ${Globals.gainsEmoji}\n` +
+                    `24h Volume: **$${numberWithCommas(Globals.geckoInfo.total_volume.toFixed(2))}**\n` +
+                    `Market Cap: **$${numberWithCommas(Globals.geckoInfo.market_cap.toFixed(2))}**\n` +
+                    `Current Supply: **${numberWithCommas(Globals.geckoInfo.circulating_supply)} TRTL**`
             });
         }
 
-		if (cmd === 'network') {
+        if (cmd === 'network') {
             bot.sendMessage({
                 to: channelID,
                 message: `🐢 **TurtleCoin Network Info** 🐢\n\n` +
-                         `Network Hashrate: **${Globals.netHash.toFixed(2)} MH/s**\n` +
-                         `Current Height: **${numberWithCommas(Globals.networkInfo.height)}**\n\n` +
-                         `Avg TX/Block: **${Globals.avgTx.toFixed(2)}**\n` +
-					             	 `TX in Mempool: **${numberWithCommas(Globals.networkInfo.tx_pool_size)}**\n` +
-                         `Total Nodes: **${numberWithCommas(Globals.totalNodes)}**`
+                    `Network Hashrate: **${Globals.netHash.toFixed(2)} MH/s**\n` +
+                    `Current Height: **${numberWithCommas(Globals.networkInfo.height)}**\n\n` +
+                    `Avg TX/Block: **${Globals.avgTx.toFixed(2)}**\n` +
+                    `TX in Mempool: **${numberWithCommas(Globals.networkInfo.tx_pool_size)}**\n` +
+                    `Total Nodes: **${numberWithCommas(Globals.totalNodes)}**`
             });
         }
 
-		if (cmd === 'help') {
+        if (cmd === 'help') {
             bot.sendMessage({
                 to: channelID,
                 message: `🐢 **MarketTalk Commands:** 🐢\n` +
-                         `\`\`\`!help : Displays this menu.\n` +
-						 `!price : Displays price information.\n` +
-                         `!network : Displays network information.\`\`\``
+                    `\`\`\`!help : Displays this menu.\n` +
+                    `!price : Displays price information.\n` +
+                    `!network : Displays network information.\`\`\``
             });
         }
     }
@@ -155,8 +157,7 @@ async function getOgreBTCInfo() {
 async function getGeckoInfo() {
     const requestOptions = {
         method: 'GET',
-        uri:
-'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=turtlecoin&order=market_cap_desc&per_page=100&page=1&sparkline=false',
+        uri: 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=turtlecoin&order=market_cap_desc&per_page=100&page=1&sparkline=false',
         headers: {},
         json: true,
         gzip: true
@@ -177,8 +178,7 @@ async function getGeckoInfo() {
 async function getTop10() {
     const requestOptions = {
         method: 'GET',
-        uri:
-'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false&price_change_percentage=24h',
+        uri: 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false&price_change_percentage=24h',
         headers: {},
         json: true,
         gzip: true
@@ -200,8 +200,7 @@ async function getTop10() {
 async function getNetworkInfo() {
     const requestOptions = {
         method: 'GET',
-        uri:
-'http://nodes.hashvault.pro:11898/getinfo',
+        uri: 'http://nodes.hashvault.pro:11898/getinfo',
         headers: {},
         json: true,
         gzip: true
@@ -222,8 +221,7 @@ async function getNetworkInfo() {
 async function getTotalNodes() {
     const requestOptions = {
         method: 'GET',
-        uri:
-'https://shellmap.mine2gether.com/api/stats',
+        uri: 'https://shellmap.mine2gether.com/api/stats',
         headers: {},
         json: true,
         gzip: true
