@@ -74,18 +74,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
         if (cmd === 'price') {
             bot.sendMessage({
                 to: channelID,
-                /* message:    
-				    `🐢 **TurtleCoin Market Info** 🐢\n\n` +
-                    `Rank: **${Globals.geckoInfo.market_cap_rank}**\n\n` +
-                    `Price LTC: **${Globals.litPrice.toFixed(0)} litoshi**\n` +
-                    `Price BTC: **${Globals.satPrice.toFixed(0)} satoshi**\n` +
-                    `Price USD Per Million: **$${Globals.pricePerMillion.toFixed(2)}**\n\n` +
-                    `24h Change: **${Globals.geckoInfo.price_change_percentage_24h.toFixed(2)}%** ${Globals.gainsEmoji}\n` +
-                    `24h Volume: **$${numberWithCommas(Globals.geckoInfo.total_volume.toFixed(2))}**\n` +
-                    `Market Cap: **$${numberWithCommas(Globals.geckoInfo.market_cap.toFixed(2))}**\n` +
-                    `Current Supply: **${numberWithCommas(Globals.geckoInfo.circulating_supply)} TRTL**`, */
 		        embed: {
-					title: `🐢🐢 TurtleCoin MarketTalk Price Info 🐢🐢`,
 					color: 3066993,
 				    thumbnail:
 					{
@@ -94,20 +83,23 @@ bot.on('message', (user, userID, channelID, message, evt) => {
 					fields: 
 					[{
                         name: "Rank",
-                        value: `${Globals.geckoInfo.market_cap_rank}`
+                        value: 
+						    `${Globals.geckoInfo.market_cap_rank}`
                     },
                     {
                         name: "Price",
-                        value: `TRTL/LTC: **${Globals.litPrice.toFixed(0)} litoshi**\n` +
-                               `TRTL/BTC: **${Globals.satPrice.toFixed(0)} satoshi**\n` +
-                               `USD Per Million: **$${Globals.pricePerMillion.toFixed(2)}**\n\n`
+                        value: 
+						    `TRTL/LTC: **${Globals.litPrice.toFixed(0)} litoshi**\n` +
+                            `TRTL/BTC: **${Globals.satPrice.toFixed(0)} satoshi**\n` +
+                            `USD Per Million: **$${Globals.pricePerMillion.toFixed(2)}**`
                     },
                     {
-                    name: "Movement",
-                    value: `24h Change: **${Globals.geckoInfo.price_change_percentage_24h.toFixed(2)}%** ${Globals.gainsEmoji}\n` +
-                           `24h Volume: **$${numberWithCommas(Globals.geckoInfo.total_volume.toFixed(2))}**\n` +
-                           `Market Cap: **$${numberWithCommas(Globals.geckoInfo.market_cap.toFixed(2))}**\n` +
-                           `Current Supply: **${numberWithCommas(Globals.geckoInfo.circulating_supply)} TRTL**`
+                        name: `Movement ${Globals.gainsEmoji}`,
+                        value:  
+						    `24h Change: **${Globals.geckoInfo.price_change_percentage_24h.toFixed(2)}%**\n` +
+                            `24h Volume: **$${numberWithCommas(Globals.geckoInfo.total_volume.toFixed(2))}**\n` +
+                            `Market Cap: **$${numberWithCommas(Globals.geckoInfo.market_cap.toFixed(2))}**\n` +
+                            `Current Supply: **${numberWithCommas(Globals.geckoInfo.circulating_supply)} TRTL**`
                     }],
 					footer: 
 					{
@@ -116,38 +108,60 @@ bot.on('message', (user, userID, channelID, message, evt) => {
 				}
             });
         }
-		
-        if (cmd === 'embed') {
-            bot.sendMessage({
-                to: channelID,
-                message:    `🐢 **TurtleCoin Network Info** 🐢\n\n` +
-                            `Network Hashrate: **${Globals.netHash.toFixed(2)} MH/s**\n` +
-                            `Current Height: **${numberWithCommas(Globals.networkInfo.height)}**\n\n` +
-                            `Avg TX/Block: **${Globals.avgTx.toFixed(2)}**\n` +
-						    `TX in Mempool: **${numberWithCommas(Globals.networkInfo.tx_pool_size)}**\n` +
-                            `Total Nodes: **${numberWithCommas(Globals.totalNodes)}**`
-            });
-        }
 
 		if (cmd === 'network') {
             bot.sendMessage({
                 to: channelID,
-                message:    `🐢 **TurtleCoin Network Info** 🐢\n\n` +
-                            `Network Hashrate: **${Globals.netHash.toFixed(2)} MH/s**\n` +
-                            `Current Height: **${numberWithCommas(Globals.networkInfo.height)}**\n\n` +
+                embed: {
+					color: 3066993,
+				    thumbnail:
+					{
+						url: 'https://raw.githubusercontent.com/turtlecoin/turtlecoin.lol/master/images/favicons/apple-touch-icon-120x120.png',
+					},
+					fields: 
+					[{
+                        name: "Stats",
+                        value: 
+						    `Network Hashrate: **${Globals.netHash.toFixed(2)} MH/s**\n` +
+                            `Current Height: **${numberWithCommas(Globals.networkInfo.height)}**\n` +
+							`Total Nodes: **${numberWithCommas(Globals.totalNodes)}**`
+                    },
+                    {
+                        name: "Transactions",
+                        value: 
                             `Avg TX/Block: **${Globals.avgTx.toFixed(2)}**\n` +
-						    `TX in Mempool: **${numberWithCommas(Globals.networkInfo.tx_pool_size)}**\n` +
-                            `Total Nodes: **${numberWithCommas(Globals.totalNodes)}**`
+						    `TX in Mempool: **${numberWithCommas(Globals.networkInfo.tx_pool_size)}**`
+                    }],
+					footer: 
+					{
+						text: 'MarketTalk © 2019 ExtraHash'
+					}
+				}
             });
         }
 
 		if (cmd === 'help') {
             bot.sendMessage({
                 to: channelID,
-                message:    `🐢 **MarketTalk Commands:** 🐢\n` +
-                            `\`\`\`!help : Displays this menu.\n` +
-						    `!price : Displays price information.\n` +
-                            `!network : Displays network information.\`\`\``
+				embed: {
+					color: 3066993,
+				    thumbnail:
+					{
+						url: 'https://raw.githubusercontent.com/turtlecoin/turtlecoin.lol/master/images/favicons/apple-touch-icon-120x120.png',
+					},
+					fields: 
+					[{
+                        name: "Help",
+                        value: 
+						    `**!help** : Displays this menu.\n` +
+                            `**!price** : Displays price information.\n` +
+							`**!network** : Displays network information.`
+                    }],
+					footer: 
+					{
+						text: 'MarketTalk © 2019 ExtraHash'
+					}
+				}			
             });
         }
     }
