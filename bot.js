@@ -22,7 +22,8 @@ const Globals = {
     avgTx: undefined,
     netHash: undefined,
     totalNodes: undefined,
-	gainsEmoji: undefined,
+    gainsEmoji: undefined,
+    top10: undefined,
 };
 
 async function update() {
@@ -32,6 +33,7 @@ async function update() {
     Globals.geckoInfo = await getGeckoInfo();
     Globals.networkInfo = await getNetworkInfo();
     Globals.totalNodes = await getTotalNodes();
+    Globals.top10 = await getTop10();
     Globals.pricePerMillion =  Globals.geckoInfo.current_price * 1000000;
     Globals.litPrice = Math.round(Globals.ogreLTCInfo.price * 100000000);
     Globals.satPrice = Math.round(Globals.ogreBTCInfo.price * 100000000);
@@ -120,6 +122,26 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             });
         }
 
+		if (cmd === 'market') {
+            bot.sendMessage({
+                to: channelID,
+                message: `💸 **Top 10 Crypto Markets By Market Capitalization:** 💸\n\n` +
+                         `**     Symbol           Price                       Change 24h**\n` +
+                         `1.  ${Globals.top10[0].symbol.toUpperCase()}                 $${numberWithCommas(Globals.top10[0].current_price.toFixed(2))}            ${Globals.top10[0].price_change_percentage_24h.toFixed(2)}%\n` +
+                         `2.  ${Globals.top10[1].symbol.toUpperCase()}                 $${numberWithCommas(Globals.top10[1].current_price.toFixed(2))}            ${Globals.top10[1].price_change_percentage_24h.toFixed(2)}%\n` +
+                         `3.  ${Globals.top10[2].symbol.toUpperCase()}                 $${numberWithCommas(Globals.top10[2].current_price.toFixed(2))}            ${Globals.top10[2].price_change_percentage_24h.toFixed(2)}%\n` +
+                         `4.  ${Globals.top10[3].symbol.toUpperCase()}                 $${numberWithCommas(Globals.top10[3].current_price.toFixed(2))}            ${Globals.top10[3].price_change_percentage_24h.toFixed(2)}%\n` +
+                         `5.  ${Globals.top10[4].symbol.toUpperCase()}                 $${numberWithCommas(Globals.top10[4].current_price.toFixed(2))}            ${Globals.top10[4].price_change_percentage_24h.toFixed(2)}%\n` +
+                         `6.  ${Globals.top10[5].symbol.toUpperCase()}                 $${numberWithCommas(Globals.top10[5].current_price.toFixed(2))}            ${Globals.top10[5].price_change_percentage_24h.toFixed(2)}%\n` +
+                         `7.  ${Globals.top10[6].symbol.toUpperCase()}                 $${numberWithCommas(Globals.top10[6].current_price.toFixed(2))}            ${Globals.top10[6].price_change_percentage_24h.toFixed(2)}%\n` +
+                         `8.  ${Globals.top10[7].symbol.toUpperCase()}                 $${numberWithCommas(Globals.top10[7].current_price.toFixed(2))}            ${Globals.top10[7].price_change_percentage_24h.toFixed(2)}%\n` +
+                         `9.  ${Globals.top10[8].symbol.toUpperCase()}                 $${numberWithCommas(Globals.top10[8].current_price.toFixed(2))}            ${Globals.top10[8].price_change_percentage_24h.toFixed(2)}%\n` +
+                         `10.  ${Globals.top10[9].symbol.toUpperCase()}                 $${numberWithCommas(Globals.top10[9].current_price.toFixed(2))}            ${Globals.top10[9].price_change_percentage_24h.toFixed(2)}%`
+
+            });
+        }
+
+
 		if (cmd === 'help') {
             bot.sendMessage({
                 to: channelID,
@@ -192,10 +214,33 @@ async function getGeckoInfo() {
         console.log(result[0]);
         return result[0];
     } catch (err) {
-        console.log('Request failed, CoinGecko API call error:', err);
+        console.log('Request failed, CoinGecko trtl API call error:', err);
         return undefined;
     }
 }
+
+// get TRTL Info from CoinGecko
+
+async function getTop10() {
+    const requestOptions = {
+        method: 'GET',
+        uri: 
+'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false&price_change_percentage=24h',
+        headers: {},
+        json: true,
+        gzip: true
+    };
+
+    try {
+        const result = await request(requestOptions);
+        console.log(result);
+        return result;
+    } catch (err) {
+        console.log('Request failed, CoinGecko top10 API call error:', err);
+        return undefined;
+    }
+}
+
 
 // get TRTL Network Info from HashVault node
 
