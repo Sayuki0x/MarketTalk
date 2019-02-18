@@ -1,4 +1,4 @@
-﻿//requires
+﻿// requires
 const discord = require('discord.io');
 const request = require('request-promise');
 const auth = require('./auth.json');
@@ -69,43 +69,78 @@ bot.on('message', (user, userID, channelID, message, evt) => {
     if (message[0] === '!') {
         const [cmd, args] = message.substring(1).split(' ');
         if (cmd === 'price') {
-            if (Globals.litPrice === undefined || Globals.satPrice === undefined || Globals.pricePerMillion === undefined || Globals.geckoInfo.price_change_percentage_24h === undefined || Globals.geckoInfo.total_volume === undefined || Globals.geckoInfo.market_cap === undefined || Globals.geckoInfo.circulating_supply !== undefined) {
-                // send error message
+            if (Globals.litPrice === undefined || Globals.satPrice === undefined || Globals.pricePerMillion === undefined || Globals.geckoInfo.price_change_percentage_24h === undefined || Globals.geckoInfo.total_volume === undefined || Globals.geckoInfo.market_cap === undefined || Globals.geckoInfo.circulating_supply === undefined) {
+                bot.sendMessage({
+                    to: channelID,
+                    message: `I'm still gathering data for you, please try again later. 😄`
+                });
             } else {
                 bot.sendMessage({
                     to: channelID,
-                    message: `I'm still gathering data for you, please try again later. ??`
-                })
+                    embed: {
+                        color: 3066993,
+                        thumbnail: {
+                            url: 'https://raw.githubusercontent.com/turtlecoin/turtlecoin.lol/master/images/favicons/apple-touch-icon-120x120.png',
+                        },
+                        fields: [{
+                                name: "Rank",
+                                value: `${Globals.geckoInfo.market_cap_rank}`
+                            },
+                            {
+                                name: "Price",
+                                value: `TRTL/LTC: **${Globals.litPrice.toFixed(0)} litoshi**\n` +
+                                    `TRTL/BTC: **${Globals.satPrice.toFixed(0)} satoshi**\n` +
+                                    `USD Per Million: **$${Globals.pricePerMillion.toFixed(2)}**`
+                            },
+                            {
+                                name: `Movement ${Globals.gainsEmoji}`,
+                                value: `24h Change: **${Globals.geckoInfo.price_change_percentage_24h.toFixed(2)}%**\n` +
+                                    `24h Volume: **$${numberWithCommas(Globals.geckoInfo.total_volume.toFixed(2))}**\n` +
+                                    `Market Cap: **$${numberWithCommas(Globals.geckoInfo.market_cap.toFixed(2))}**\n` +
+                                    `Current Supply: **${numberWithCommas(Globals.geckoInfo.circulating_supply)} TRTL**`
+                            }
+                        ],
+                        footer: {
+                            text: 'MarketTalk © 2019 ExtraHash'
+                        }
+                    }
+                });
             }
         }
 
         if (cmd === 'network') {
-            bot.sendMessage({
-                to: channelID,
-                embed: {
-                    color: 3066993,
-                    thumbnail: {
-                        url: 'https://raw.githubusercontent.com/turtlecoin/turtlecoin.lol/master/images/favicons/apple-touch-icon-120x120.png',
-                    },
-                    fields: [{
-                            name: "Stats",
-                            value: `Network Hashrate: **${Globals.netHash.toFixed(2)} MH/s**\n` +
-                                `Current Height: **${numberWithCommas(Globals.networkInfo.height)}**\n` +
-                                `Total Nodes: **${numberWithCommas(Globals.totalNodes)}**`
+            if (Globals.netHash === undefined || Globals.networkInfo === undefined || Globals.totalNodes === undefined) {
+                bot.sendMessage({
+                    to: channelID,
+                    message: `I'm still gathering data for you, please try again later. 😄`
+                });
+            } else {
+                bot.sendMessage({
+                    to: channelID,
+                    embed: {
+                        color: 3066993,
+                        thumbnail: {
+                            url: 'https://raw.githubusercontent.com/turtlecoin/turtlecoin.lol/master/images/favicons/apple-touch-icon-120x120.png',
                         },
-                        {
-                            name: "Transactions",
-                            value: `Avg TX/Block: **${Globals.avgTx.toFixed(2)}**\n` +
-                                `TX in Mempool: **${numberWithCommas(Globals.networkInfo.tx_pool_size)}**`
+                        fields: [{
+                                name: "Stats",
+                                value: `Network Hashrate: **${Globals.netHash.toFixed(2)} MH/s**\n` +
+                                    `Current Height: **${numberWithCommas(Globals.networkInfo.height)}**\n` +
+                                    `Total Nodes: **${numberWithCommas(Globals.totalNodes)}**`
+                            },
+                            {
+                                name: "Transactions",
+                                value: `Avg TX/Block: **${Globals.avgTx.toFixed(2)}**\n` +
+                                    `TX in Mempool: **${numberWithCommas(Globals.networkInfo.tx_pool_size)}**`
+                            }
+                        ],
+                        footer: {
+                            text: 'MarketTalk © 2019 ExtraHash'
                         }
-                    ],
-                    footer: {
-                        text: 'MarketTalk © 2019 ExtraHash'
                     }
-                }
-            });
+                });
+            }
         }
-
         if (cmd === 'help') {
             bot.sendMessage({
                 to: channelID,
