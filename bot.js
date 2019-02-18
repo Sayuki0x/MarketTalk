@@ -32,7 +32,6 @@ async function update() {
   Globals.totalNodes = await getTotalNodes();
   Globals.pricePerMillion = Globals.geckoInfo.current_price * 1000000;
   Globals.litPrice = Math.round(Globals.ogreLTCInfo.price * 100000000);
-  Globals.litPrice = undefined;
   Globals.satPrice = Math.round(Globals.ogreBTCInfo.price * 100000000);
   Globals.avgTx = Globals.networkInfo.tx_count / Globals.networkInfo.height;
   Globals.netHash = Globals.networkInfo.hashrate / 1000000
@@ -73,6 +72,11 @@ bot.on('message', (user, userID, channelID, message, evt) => {
       if (Globals.litPrice === undefined || Globals.satPrice === undefined || Globals.pricePerMillion === undefined || Globals.geckoInfo.price_change_percentage_24h === undefined || Globals.geckoInfo.total_volume === undefined || Globals.geckoInfo.market_cap === undefined || Globals.geckoInfo.circulating_supply === undefined) {
         bot.sendMessage({
           to: channelID,
+          message: `I'm still gathering data for you, please try again later. 😄`
+        });
+      } else {
+        bot.sendMessage({
+          to: channelID,
           embed: {
             color: 3066993,
             thumbnail: {
@@ -101,11 +105,6 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             }
           }
         });
-      } else {
-        bot.sendMessage({
-          to: channelID,
-          message: `I'm still gathering data for you, please try again later. ??`
-        })
       }
     }
 
