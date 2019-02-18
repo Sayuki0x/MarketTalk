@@ -20,5 +20,10 @@
   "bugs": {
     "url": "https://github.com/ExtraHash/MarketTalk/issues"
   },
-  "homepage": "https://github.com/ExtraHash/MarketTalk#readme"
+  "homepage": "https://github.com/ExtraHash/MarketTalk#readme",
+  "dependencies": {
+    "discord.io": "^2.5.3",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4"
+  }
 }
