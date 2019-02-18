@@ -1,4 +1,4 @@
-﻿//requires
+﻿// requires
 const discord = require('discord.io');
 const request = require('request-promise');
 const auth = require('./auth.json');
@@ -109,32 +109,38 @@ bot.on('message', (user, userID, channelID, message, evt) => {
     }
 
     if (cmd === 'network') {
-      bot.sendMessage({
-        to: channelID,
-        embed: {
-          color: 3066993,
-          thumbnail: {
-            url: 'https://raw.githubusercontent.com/turtlecoin/turtlecoin.lol/master/images/favicons/apple-touch-icon-120x120.png',
-          },
-          fields: [{
-              name: "Stats",
-              value: `Network Hashrate: **${Globals.netHash.toFixed(2)} MH/s**\n` +
-                `Current Height: **${numberWithCommas(Globals.networkInfo.height)}**\n` +
-                `Total Nodes: **${numberWithCommas(Globals.totalNodes)}**`
+      if (Globals.netHash === undefined || Globals.networkInfo === undefined || Globals.totalNodes === undefined) {
+        bot.sendMessage({
+          to: channelID,
+          message: `I'm still gathering data for you, please try again later. 😄`
+        });
+      } else {
+        bot.sendMessage({
+          to: channelID,
+          embed: {
+            color: 3066993,
+            thumbnail: {
+              url: 'https://raw.githubusercontent.com/turtlecoin/turtlecoin.lol/master/images/favicons/apple-touch-icon-120x120.png',
             },
-            {
-              name: "Transactions",
-              value: `Avg TX/Block: **${Globals.avgTx.toFixed(2)}**\n` +
-                `TX in Mempool: **${numberWithCommas(Globals.networkInfo.tx_pool_size)}**`
+            fields: [{
+                name: "Stats",
+                value: `Network Hashrate: **${Globals.netHash.toFixed(2)} MH/s**\n` +
+                  `Current Height: **${numberWithCommas(Globals.networkInfo.height)}**\n` +
+                  `Total Nodes: **${numberWithCommas(Globals.totalNodes)}**`
+              },
+              {
+                name: "Transactions",
+                value: `Avg TX/Block: **${Globals.avgTx.toFixed(2)}**\n` +
+                  `TX in Mempool: **${numberWithCommas(Globals.networkInfo.tx_pool_size)}**`
+              }
+            ],
+            footer: {
+              text: 'MarketTalk © 2019 ExtraHash'
             }
-          ],
-          footer: {
-            text: 'MarketTalk © 2019 ExtraHash'
           }
-        }
-      });
+        });
+      }
     }
-
     if (cmd === 'help') {
       bot.sendMessage({
         to: channelID,
