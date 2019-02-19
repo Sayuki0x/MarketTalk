@@ -58,21 +58,27 @@ const bot = new discord.Client({
     autorun: true
 });
 
+// log in
 bot.on('ready', (evt) => {
     console.log(`** Connected, logged in as ${bot.username}-${bot.id} and listening for commands.`);
 });
 
+// error logging
 bot.on('error', console.error);
 
+// on message handling
 bot.on('message', (user, userID, channelID, message, evt) => {
     // It will listen for messages that will start with `!`
     if (message[0] === '!') {
         const [cmd, args] = message.substring(1).split(' ');
+
+        // price command
         if (cmd === 'price') {
+            // check that none of the variables are undefined
             if (Globals.litPrice === undefined || Globals.satPrice === undefined || Globals.pricePerMillion === undefined || Globals.geckoInfo.price_change_percentage_24h === undefined || Globals.geckoInfo.total_volume === undefined || Globals.geckoInfo.market_cap === undefined || Globals.geckoInfo.circulating_supply === undefined) {
                 bot.sendMessage({
                     to: channelID,
-                    message: `I'm still gathering data for you, please try again later. 😄`
+                    message: `Whoops! I'm still gathering data for you, please try again later. 😄`
                 });
             } else {
                 bot.sendMessage({
@@ -108,11 +114,93 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             }
         }
 
+        // difficulty command
+        if (cmd === 'difficulty') {
+            // check that none of the variables are undefined
+            if (Globals.networkInfo.hashrate === undefined) {
+                bot.sendMessage({
+                    to: channelID,
+                    message: `Whoops! I'm still gathering data for you, please try again later. 😄`
+                });
+            } else {
+                bot.sendMessage({
+                    to: channelID,
+                    message: `The current difficulty is **${numberWithCommas(Globals.networkInfo.hashrate * 30)}**`
+                });
+            }
+        }
+
+        // mcap command
+        if (cmd === 'mcap') {
+            // check that none of the variables are undefined
+            if (Globals.networkInfo.height === undefined) {
+                bot.sendMessage({
+                    to: channelID,
+                    message: `Whoops! I'm still gathering data for you, please try again later. 😄`
+                });
+            } else {
+                bot.sendMessage({
+                    to: channelID,
+                    message: `TurtleCoin's market cap is **$${numberWithCommas(Globals.geckoInfo.market_cap.toFixed(2))}** USD`
+                });
+            }
+        }    
+
+        // supply command
+        if (cmd === 'supply') {
+            // check that none of the variables are undefined
+            if (Globals.networkInfo.height === undefined) {
+                bot.sendMessage({
+                    to: channelID,
+                    message: `Whoops! I'm still gathering data for you, please try again later. 😄`
+                });
+            } else {
+                bot.sendMessage({
+                    to: channelID,
+                    message: `The current circulating supply is **${numberWithCommas(Globals.geckoInfo.circulating_supply)}** TRTL`
+                });
+            }
+        }    
+
+        // height command
+        if (cmd === 'height') {
+            // check that none of the variables are undefined
+            if (Globals.networkInfo.height === undefined) {
+                bot.sendMessage({
+                    to: channelID,
+                    message: `Whoops! I'm still gathering data for you, please try again later. 😄`
+                });
+            } else {
+                bot.sendMessage({
+                    to: channelID,
+                    message: `The current  block height is **${numberWithCommas(Globals.networkInfo.height)}**`
+                });
+            }
+        }    
+
+        // hashrate command
+        if (cmd === 'hashrate') {
+            // check that none of the variables are undefined
+            if (Globals.netHash === undefined) {
+                bot.sendMessage({
+                    to: channelID,
+                    message: `Whoops! I'm still gathering data for you, please try again later. 😄`
+                });
+            } else {
+                bot.sendMessage({
+                    to: channelID,
+                    message: `The current global hashrate is **${Globals.netHash.toFixed(2)} MH/s**`
+                });
+            }
+        }    
+
+        // network command
         if (cmd === 'network') {
+            // check that none of the variables are undefined
             if (Globals.netHash === undefined || Globals.networkInfo === undefined || Globals.totalNodes === undefined) {
                 bot.sendMessage({
                     to: channelID,
-                    message: `I'm still gathering data for you, please try again later. 😄`
+                    message: `Whoops! I'm still gathering data for you, please try again later. 😄`
                 });
             } else {
                 bot.sendMessage({
@@ -141,24 +229,19 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                 });
             }
         }
+
+        // help command
         if (cmd === 'help') {
             bot.sendMessage({
                 to: channelID,
-                embed: {
-                    color: 3066993,
-                    thumbnail: {
-                        url: 'https://raw.githubusercontent.com/turtlecoin/turtlecoin.lol/master/images/favicons/apple-touch-icon-120x120.png',
-                    },
-                    fields: [{
-                        name: "Help",
-                        value: `**!help** : Displays this menu.\n` +
-                            `**!price** : Displays price information.\n` +
-                            `**!network** : Displays network information.`
-                    }],
-                    footer: {
-                        text: 'MarketTalk © 2019 ExtraHash'
-                    }
-                }
+                message: `**!help** : Displays this menu.\n` +
+                    `**!price** : Displays price information.\n` +
+                    `**!network** : Displays network information.\n` +
+                    `**!hashrate** : Displays current network hashrate.\n` +
+                    `**!difficulty** : Displays current network hashrate.\n` +
+                    `**!height** : Displays current network hashrate.\n` +
+                    `**!supply** : Displays current network hashrate.\n` +
+                    `**!mcap** : Displays current market capitilization.`
             });
         }
     }
