@@ -34,11 +34,11 @@ async function update() {
     Globals.litPrice = Math.round(Globals.ogreLTCInfo.price * 100000000);
     Globals.satPrice = Math.round(Globals.ogreBTCInfo.price * 100000000);
     Globals.avgTx = Globals.networkInfo.tx_count / Globals.networkInfo.height;
-    Globals.netHash = Globals.networkInfo.hashrate / 1000000
+    Globals.netHash = Globals.networkInfo.hashrate / 1000000;
     if (Globals.geckoInfo.price_change_percentage_24h > 0) {
-        Globals.gainsEmoji = `📈`;
+        Globals.gainsEmoji = '📈';
     } else {
-        Globals.gainsEmoji = `📉`;
+        Globals.gainsEmoji = '📉';
     }
 }
 
@@ -78,7 +78,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             if (Globals.litPrice === undefined || Globals.satPrice === undefined || Globals.pricePerMillion === undefined || Globals.geckoInfo.price_change_percentage_24h === undefined || Globals.geckoInfo.total_volume === undefined || Globals.geckoInfo.market_cap === undefined || Globals.geckoInfo.circulating_supply === undefined) {
                 bot.sendMessage({
                     to: channelID,
-                    message: `Whoops! I'm still gathering data for you, please try again later. 😄`
+                    message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
                 });
             } else {
                 bot.sendMessage({
@@ -120,7 +120,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             if (Globals.networkInfo.hashrate === undefined) {
                 bot.sendMessage({
                     to: channelID,
-                    message: `Whoops! I'm still gathering data for you, please try again later. 😄`
+                    message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
                 });
             } else {
                 bot.sendMessage({
@@ -136,7 +136,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             if (Globals.networkInfo.height === undefined) {
                 bot.sendMessage({
                     to: channelID,
-                    message: `Whoops! I'm still gathering data for you, please try again later. 😄`
+                    message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
                 });
             } else {
                 bot.sendMessage({
@@ -152,7 +152,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             if (Globals.networkInfo.height === undefined) {
                 bot.sendMessage({
                     to: channelID,
-                    message: `Whoops! I'm still gathering data for you, please try again later. 😄`
+                    message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
                 });
             } else {
                 bot.sendMessage({
@@ -168,7 +168,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             if (Globals.networkInfo.height === undefined) {
                 bot.sendMessage({
                     to: channelID,
-                    message: `Whoops! I'm still gathering data for you, please try again later. 😄`
+                    message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
                 });
             } else {
                 bot.sendMessage({
@@ -184,7 +184,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             if (Globals.netHash === undefined) {
                 bot.sendMessage({
                     to: channelID,
-                    message: `Whoops! I'm still gathering data for you, please try again later. 😄`
+                    message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
                 });
             } else {
                 bot.sendMessage({
@@ -200,7 +200,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             if (Globals.netHash === undefined || Globals.networkInfo === undefined || Globals.totalNodes === undefined) {
                 bot.sendMessage({
                     to: channelID,
-                    message: `Whoops! I'm still gathering data for you, please try again later. 😄`
+                    message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
                 });
             } else {
                 bot.sendMessage({
@@ -234,14 +234,15 @@ bot.on('message', (user, userID, channelID, message, evt) => {
         if (cmd === 'help') {
             bot.sendMessage({
                 to: channelID,
-                message: `**!help** : Displays this menu.\n` +
-                    `**!price** : Displays price information.\n` +
-                    `**!network** : Displays network information.\n` +
-                    `**!hashrate** : Displays current network hashrate.\n` +
-                    `**!difficulty** : Displays current network hashrate.\n` +
-                    `**!height** : Displays current network hashrate.\n` +
-                    `**!supply** : Displays current network hashrate.\n` +
-                    `**!mcap** : Displays current market capitilization.`
+                message: 
+                    '\`\`\`!difficulty   :   Displays current difficulty.\n' +
+                    '!hashrate     :   Displays current network hashrate.\n' +
+                    '!height       :   Displays current block height.\n' +
+                    '!help         :   Displays this menu.\n' +
+                    '!mcap         :   Displays current market capitilization.\n' +
+                    '!network      :   Displays network information.\n' +
+                    '!price        :   Displays price information.\n' +
+                    '!supply       :   Displays current network hashrate.\n\`\`\`'
             });
         }
     }
