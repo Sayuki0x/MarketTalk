@@ -1,7 +1,7 @@
 {
   "name": "markettalk",
   "version": "1.1.0",
-  "description": "Market Talk discord bot for TurtleCoin",
+  "description": "Market Talk bot for TurtleCoin.",
   "main": "bot.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,9 +11,10 @@
     "url": "git+https://github.com/ExtraHash/MarketTalk.git"
   },
   "keywords": [
-    "turtlecoin",
     "market",
-    "talk"
+    "talk",
+    "turtlecoin",
+    "crypto"
   ],
   "author": "ExtraHash",
   "license": "GPL-3.0",
