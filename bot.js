@@ -86,6 +86,12 @@ bot.on('guildMemberAdd', (member) => {
             to: `413877823489703947`,
             message: `FUCK OFF FAGGOT <@${member.id}>`
         });
+    } else {
+        console.log('** New member joined server, welcome message sent');
+        bot.sendMessage({
+            to: `413877823489703947`,
+            message: `Hey <@${member.id}>, welcome to TurtleCoin!`
+        });
     }
 });
 
