@@ -67,15 +67,26 @@ bot.on('error', console.error);
 
 /*
 // logs every single event
-bot.on("any", (event) => {
+bot.on('any', (event) => {
 	console.log(event)
 }); 
 */
 
 // reconnect if disconected
-bot.on("disconnect", function() {
+bot.on('disconnect', function() {
 	console.log("** Bot disconnected, reconnecting...");
 	bot.connect()  //Auto reconnect
+});
+
+// on new member joining
+bot.on('guildMemberAdd', (member) => {
+    if (member.id === '407917731581657089') {
+        console.log(`** Alien joined server, told him to go fuck himself`);
+        bot.sendMessage({
+            to: `413877823489703947`,
+            message: `FUCK OFF FAGGOT <@${member.id}>`
+        });
+    }
 });
 
 // on message handling
