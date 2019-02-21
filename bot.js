@@ -39,6 +39,7 @@ async function update() {
     Globals.satPrice = Math.round(Globals.ogreBTCInfo.price * 100000000);
     Globals.avgTx = Globals.networkInfo.tx_count / Globals.networkInfo.height;
     Globals.netHash = Globals.networkInfo.hashrate / 1000000;
+    Globals.lamboPrice = 199800 / Globals.geckoInfo.current_price
     if (Globals.geckoInfo.price_change_percentage_24h > 0) {
         Globals.gainsEmoji = '📈';
     } else {
@@ -165,11 +166,30 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                     '!height       :   Displays current block height.\n' +
                     '!help         :   Displays this menu.\n' +
                     '!mcap         :   Displays current market capitilization.\n' +
+                    '!lambo        :   Displays current price of new lambo.\n' +
                     '!network      :   Displays network information.\n' +
                     '!price        :   Displays price information.\n' +
                     '!supply       :   Displays current network hashrate.\n\`\`\`'
             });
         }
+
+        // lambo command
+        if (cmd === 'lambo') {
+            // check that none of the variables are undefined
+            if (Globals.lamboPrice === undefined) {
+                console.log('** Undefined lambo price requested');
+                bot.sendMessage({
+                    to: channelID,
+                    message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
+                });
+            } else {
+                console.log('** Current lambo price message sent');
+                bot.sendMessage({
+                    to: channelID,
+                    message: `A 2019 Lamborghini Huracan costs roughly **${numberWithCommas(Globals.lamboPrice.toFixed(2))} TRTL**`
+                });
+            }
+        }   
 
         // mcap command
         if (cmd === 'mcap') {
@@ -315,7 +335,7 @@ async function getOgreLTCInfo() {
         //console.log(result);
         return result;
     } catch (err) {
-        console.log('Request failed, TradeOgre API call error:', err);
+        console.log('Request failed, TradeOgre API call error:\n', err);
         return undefined;
     }
 }
@@ -353,7 +373,7 @@ async function getGeckoInfo() {
         //console.log(result[0]);
         return result[0];
     } catch (err) {
-        console.log('Request failed, CoinGecko trtl API call error:', err);
+        console.log('Request failed, CoinGecko trtl API call error: \n', err);
         return undefined;
     }
 }
@@ -372,7 +392,7 @@ async function getNetworkInfo() {
         //console.log(result);
         return result;
     } catch (err) {
-        console.log('Request failed, HashVault Node API call error:', err);
+        console.log('Request failed, HashVault Node API call error: \n', err);
         return undefined;
     }
 }
@@ -391,7 +411,7 @@ async function getTotalNodes() {
         //console.log(`Shellmaps Total Node Count: ${result.globalData.nodeCount}`);
         return result.globalData.nodeCount;
     } catch (err) {
-        console.log('Request failed, ShellMaps API call error:', err);
+        console.log('Request failed, ShellMaps API call error: \n', err);
         return undefined;
     }
 }
