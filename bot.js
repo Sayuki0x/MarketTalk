@@ -287,7 +287,16 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                     message: `The current circulating supply is **${numberWithCommas(Globals.geckoInfo.circulating_supply)}** TRTL`
                 });
             }
-        }      
+        } 
+        
+        // whine command
+        if (cmd === 'whine') {
+            console.log('** Told someone to nut up and stop being a sniveling bitch');
+            bot.sendMessage({
+                to: channelID,
+                message: 'Don\'t be such a sniveling little bitch.'
+            });
+        } 
 
     }
 });
