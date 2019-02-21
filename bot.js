@@ -62,26 +62,19 @@ bot.on('ready', (evt) => {
     console.log(`** Connected, logged in as ${bot.username}-${bot.id} and listening for commands.`);
 });
 
-// on guild member join
-bot.on('guildMemberAdd', (guild, member, channelID) => {
-    console.log(`New Guild member added! ${channelID}`)
-    bot.sendMessage({
-        to: channelID,
-        message: 'lol'
-    });
-});
-
 // error logging
 bot.on('error', console.error);
 
+/*
 // logs every single event
 bot.on("any", (event) => {
-	console.log(event) // logs events
-});
+	console.log(event)
+}); 
+*/
 
 // reconnect if disconected
 bot.on("disconnect", function() {
-	console.log("** Bot disconnected");
+	console.log("** Bot disconnected, reconnecting...");
 	bot.connect()  //Auto reconnect
 });
 
@@ -95,11 +88,13 @@ bot.on('message', (user, userID, channelID, message, evt) => {
         if (cmd === 'difficulty') {
             // check that none of the variables are undefined
             if (Globals.networkInfo.hashrate === undefined) {
+                console.log('** Undefined difficulty requested');
                 bot.sendMessage({
                     to: channelID,
                     message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
                 });
             } else {
+                console.log('** Current difficulty message sent');
                 bot.sendMessage({
                     to: channelID,
                     message: `The current difficulty is **${numberWithCommas(Globals.networkInfo.hashrate * 30)}**`
@@ -111,11 +106,13 @@ bot.on('message', (user, userID, channelID, message, evt) => {
         if (cmd === 'hashrate') {
             // check that none of the variables are undefined
             if (Globals.netHash === undefined) {
+                console.log('** Undefined hashrate requested');
                 bot.sendMessage({
                     to: channelID,
                     message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
                 });
             } else {
+                console.log('** Current hashrate message sent');
                 bot.sendMessage({
                     to: channelID,
                     message: `The current global hashrate is **${Globals.netHash.toFixed(2)} MH/s**`
@@ -127,11 +124,13 @@ bot.on('message', (user, userID, channelID, message, evt) => {
         if (cmd === 'height') {
             // check that none of the variables are undefined
             if (Globals.networkInfo.height === undefined) {
+                console.log('** Undefined block height requested');
                 bot.sendMessage({
                     to: channelID,
                     message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
                 });
             } else {
+                console.log('** Current block height message sent');
                 bot.sendMessage({
                     to: channelID,
                     message: `The current  block height is **${numberWithCommas(Globals.networkInfo.height)}**`
@@ -141,6 +140,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
         
         // help command
         if (cmd === 'help') {
+            console.log('** Help menu message sent');
             bot.sendMessage({
                 to: channelID,
                 message: '\`\`\`!difficulty   :   Displays current difficulty.\n' +
@@ -158,11 +158,13 @@ bot.on('message', (user, userID, channelID, message, evt) => {
         if (cmd === 'mcap') {
             // check that none of the variables are undefined
             if (Globals.networkInfo.height === undefined) {
+                console.log('** Undefined market cap requested');
                 bot.sendMessage({
                     to: channelID,
                     message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
                 });
             } else {
+                console.log('** Current market cap message sent');
                 bot.sendMessage({
                     to: channelID,
                     message: `TurtleCoin's market cap is **$${numberWithCommas(Globals.geckoInfo.market_cap.toFixed(2))}** USD`
@@ -174,11 +176,13 @@ bot.on('message', (user, userID, channelID, message, evt) => {
          if (cmd === 'network') {
             // check that none of the variables are undefined
             if (Globals.netHash === undefined || Globals.networkInfo === undefined || Globals.totalNodes === undefined) {
+                console.log('** Undefined network info requested');
                 bot.sendMessage({
                     to: channelID,
                     message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
                 });
             } else {
+                console.log('** Network info message sent');
                 bot.sendMessage({
                     to: channelID,
                     embed: {
@@ -210,11 +214,13 @@ bot.on('message', (user, userID, channelID, message, evt) => {
         if (cmd === 'price') {
             // check that none of the variables are undefined
             if (Globals.litPrice === undefined || Globals.satPrice === undefined || Globals.pricePerMillion === undefined || Globals.geckoInfo.price_change_percentage_24h === undefined || Globals.geckoInfo.total_volume === undefined || Globals.geckoInfo.market_cap === undefined || Globals.geckoInfo.circulating_supply === undefined) {
+                console.log('** Undefined price info requested');
                 bot.sendMessage({
                     to: channelID,
                     message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
                 });
             } else {
+                console.log('** Price info message sent');
                 bot.sendMessage({
                     to: channelID,
                     embed: {
@@ -252,11 +258,13 @@ bot.on('message', (user, userID, channelID, message, evt) => {
         if (cmd === 'supply') {
             // check that none of the variables are undefined
             if (Globals.networkInfo.height === undefined) {
+                console.log('** Undefined supply requested');
                 bot.sendMessage({
                     to: channelID,
                     message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
                 });
             } else {
+                console.log('** Supply message sent');
                 bot.sendMessage({
                     to: channelID,
                     message: `The current circulating supply is **${numberWithCommas(Globals.geckoInfo.circulating_supply)}** TRTL`
