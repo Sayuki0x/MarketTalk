@@ -3,7 +3,7 @@ const discord = require('discord.io');
 const request = require('request-promise');
 const auth = require('./auth.json');
 
-// global variable list
+// variable area
 const Globals = {
     ogreLTCInfo: undefined,
     ogreBTCInfo: undefined,
@@ -17,8 +17,12 @@ const Globals = {
     totalNodes: undefined,
     gainsEmoji: undefined,
 };
+const bot = new discord.Client({
+    token: auth.token,
+    autorun: true
+});
 
-// format numbers with commas like currency
+// function to format numbers with commas like currency
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
@@ -53,19 +57,33 @@ async function init() {
     await init();
 })()
 
-// create and authenticate bot
-const bot = new discord.Client({
-    token: auth.token,
-    autorun: true
-});
-
 // on log in
 bot.on('ready', (evt) => {
     console.log(`** Connected, logged in as ${bot.username}-${bot.id} and listening for commands.`);
 });
 
+// on guild member join
+bot.on('guildMemberAdd', (guild, member, channelID) => {
+    console.log(`New Guild member added! ${channelID}`)
+    bot.sendMessage({
+        to: channelID,
+        message: 'lol'
+    });
+});
+
 // error logging
 bot.on('error', console.error);
+
+// logs every single event
+bot.on("any", (event) => {
+	console.log(event) // logs events
+});
+
+// reconnect if disconected
+bot.on("disconnect", function() {
+	console.log("** Bot disconnected");
+	bot.connect()  //Auto reconnect
+});
 
 // on message handling
 bot.on('message', (user, userID, channelID, message, evt) => {
@@ -288,7 +306,6 @@ async function getOgreBTCInfo() {
 }
 
 // get TRTL Info from CoinGecko
-
 async function getGeckoInfo() {
     const requestOptions = {
         method: 'GET',
