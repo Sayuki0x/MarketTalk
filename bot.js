@@ -2,6 +2,9 @@
 const discord = require('discord.io');
 const request = require('request-promise');
 const auth = require('./auth.json');
+const insults = require('./insults.json');
+const alienID = '407917731581657089';
+const marketID = '413877823489703947';
 
 // variable area
 const Globals = {
@@ -26,6 +29,16 @@ const bot = new discord.Client({
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+
+// function to get random integer in a range
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+// function to get random insult
+function getInsult() {
+    return insults[getRandomInt(0, insults.length)];
+}  
 
 // async block
 async function update() {
@@ -81,16 +94,16 @@ bot.on('disconnect', function() {
 
 // on new member joining
 bot.on('guildMemberAdd', (member) => {
-    if (member.id === '407917731581657089') {
+    if (member.id === alienID) {
         console.log(`** Alien joined server, told him to go fuck himself`);
         bot.sendMessage({
-            to: `413877823489703947`,
-            message: `FUCK OFF FAGGOT <@${member.id}>`
+            to: marketID,
+            message: `${getInsult()} <@${member.id}>`
         });
     } else {
         console.log('** New member joined server, welcome message sent');
         bot.sendMessage({
-            to: `413877823489703947`,
+            to: marketID,
             message: `Hey <@${member.id}>, welcome to TurtleCoin!`
         });
     }
