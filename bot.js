@@ -15,6 +15,7 @@ const Globals = {
     litPrice: undefined,
     satPrice: undefined,
     networkInfo: undefined,
+    networkQuery: undefined,
     avgTx: undefined,
     netHash: undefined,
     totalNodes: undefined,
@@ -45,7 +46,12 @@ async function update() {
     Globals.ogreLTCInfo = await getOgreLTCInfo();
     Globals.ogreBTCInfo = await getOgreBTCInfo();
     Globals.geckoInfo = await getGeckoInfo();
-    Globals.networkInfo = await getNetworkInfo();
+    Globals.networkQuery = await getNetworkInfo();
+    if (Globals.networkQuery !== undefined) {
+        Globals.networkInfo = Globals.networkQuery;
+    } else {
+        console.log("** Got undefined data from node")
+    }
     Globals.totalNodes = await getTotalNodes();
     Globals.pricePerMillion = Globals.geckoInfo.current_price * 1000000;
     Globals.litPrice = Math.round(Globals.ogreLTCInfo.price * 100000000);
@@ -391,11 +397,11 @@ async function getGeckoInfo() {
     }
 }
 
-// get TRTL Network Info from HashVault node
+// get TRTL Network Info from TurteCoin node
 async function getNetworkInfo() {
     const requestOptions = {
         method: 'GET',
-        uri: 'http://nodes.hashvault.pro:11898/getinfo',
+        uri: 'http://node.turtlepool.space:11898/getinfo',
         headers: {},
         json: true,
         gzip: true
@@ -405,7 +411,7 @@ async function getNetworkInfo() {
         //console.log(result);
         return result;
     } catch (err) {
-        console.log('Request failed, HashVault Node API call error: \n', err);
+        console.log('Request failed, TurtleCoin Node API call error');
         return undefined;
     }
 }
