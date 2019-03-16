@@ -127,8 +127,8 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             messageID: evt.d.id,
             reaction: {
                 name: 'brainlet',
-                id: '556550665095086080'
-              }
+                id: '413861613481754625'
+            }
         })
     }
 
