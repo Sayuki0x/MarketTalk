@@ -5,6 +5,7 @@ const auth = require('./auth.json');
 const insults = require('./insults.json');
 const alienID = '407917731581657089';
 const rogerID = '431654339359277067';
+const extraID = '388037798772473859';
 const marketID = '413877823489703947';
 
 // variable area
@@ -120,15 +121,18 @@ bot.on('guildMemberAdd', (member) => {
 bot.on('message', (user, userID, channelID, message, evt) => {
 
     // brainlet roger and alien
-    if (userID === rogerID || userID === alienID ) {
+    if (userID === rogerID || userID === alienID) {
         bot.addReaction({
             channelID: channelID,
             messageID: evt.d.id,
-            reaction: '<:brainlet:413861613481754625>'
+            reaction: {
+                name: 'brainlet',
+                id: '556550665095086080'
+              }
         })
     }
 
-    // It will listen for messages that will start with `!`
+    // listen for messages that will start with `!`
     if (message[0] === '!') {
         const [cmd, args] = message.substring(1).split(' ');
 
