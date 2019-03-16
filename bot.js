@@ -5,7 +5,7 @@ const auth = require('./auth.json');
 const insults = require('./insults.json');
 const alienID = '407917731581657089';
 const rogerID = '431654339359277067';
-const extraID = '388037798772473859';
+const extraID = '3880377987724738590';
 const marketID = '413877823489703947';
 
 // variable area
@@ -121,13 +121,13 @@ bot.on('guildMemberAdd', (member) => {
 bot.on('message', (user, userID, channelID, message, evt) => {
 
     // brainlet roger and alien
-    if (userID === rogerID || userID === alienID) {
+    if (userID === rogerID || userID === alienID || userID === extraID) {
         bot.addReaction({
             channelID: channelID,
             messageID: evt.d.id,
             reaction: {
                 name: 'brainlet',
-                id: '413861613481754625'
+                id: '556550665095086080'
             }
         })
     }
@@ -147,6 +147,11 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                 });
             } else {
                 console.log('** Current difficulty message sent');
+                bot.addReaction({
+                    channelID: channelID,
+                    messageID: evt.d.id,
+                    reaction: '☑'
+                });
                 bot.sendMessage({
                     to: channelID,
                     message: `The current difficulty is **${numberWithCommas(Globals.networkInfo.hashrate * 30)}**`
@@ -165,6 +170,11 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                 });
             } else {
                 console.log('** Current hashrate message sent');
+                bot.addReaction({
+                    channelID: channelID,
+                    messageID: evt.d.id,
+                    reaction: '☑'
+                });
                 bot.sendMessage({
                     to: channelID,
                     message: `The current global hashrate is **${Globals.netHash.toFixed(2)} MH/s**`
@@ -183,6 +193,11 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                 });
             } else {
                 console.log('** Current block height message sent');
+                bot.addReaction({
+                    channelID: channelID,
+                    messageID: evt.d.id,
+                    reaction: '☑'
+                });
                 bot.sendMessage({
                     to: channelID,
                     message: `The current  block height is **${numberWithCommas(Globals.networkInfo.height)}**`
@@ -193,6 +208,11 @@ bot.on('message', (user, userID, channelID, message, evt) => {
         // help command
         if (cmd === 'help') {
             console.log('** Help menu message sent');
+            bot.addReaction({
+                channelID: channelID,
+                messageID: evt.d.id,
+                reaction: '☑'
+            });
             bot.sendMessage({
                 to: channelID,
                 message: '\`\`\`!difficulty   :   Displays current difficulty.\n' +
@@ -218,6 +238,11 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                 });
             } else {
                 console.log('** Current lambo price message sent');
+                bot.addReaction({
+                    channelID: channelID,
+                    messageID: evt.d.id,
+                    reaction: '☑'
+                });
                 bot.sendMessage({
                     to: channelID,
                     message: `A 2019 Lamborghini Huracan costs roughly **${numberWithCommas(Globals.lamboPrice.toFixed(2))} TRTL**`
@@ -235,6 +260,11 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                     message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
                 });
             } else {
+                bot.addReaction({
+                    channelID: channelID,
+                    messageID: evt.d.id,
+                    reaction: '☑'
+                });
                 console.log('** Current market cap message sent');
                 bot.sendMessage({
                     to: channelID,
@@ -254,6 +284,11 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                 });
             } else {
                 console.log('** Network info message sent');
+                bot.addReaction({
+                    channelID: channelID,
+                    messageID: evt.d.id,
+                    reaction: '☑'
+                });
                 bot.sendMessage({
                     to: channelID,
                     embed: {
@@ -292,6 +327,11 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                 });
             } else {
                 console.log('** Price info message sent');
+                bot.addReaction({
+                    channelID: channelID,
+                    messageID: evt.d.id,
+                    reaction: '☑'
+                })
                 bot.sendMessage({
                     to: channelID,
                     embed: {
@@ -336,6 +376,11 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                 });
             } else {
                 console.log('** Supply message sent');
+                bot.addReaction({
+                    channelID: channelID,
+                    messageID: evt.d.id,
+                    reaction: '☑'
+                });
                 bot.sendMessage({
                     to: channelID,
                     message: `The current circulating supply is **${numberWithCommas(Globals.geckoInfo.circulating_supply)}** TRTL`
