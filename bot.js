@@ -5,7 +5,7 @@ const auth = require('./auth.json');
 const insults = require('./insults.json');
 const alienID = '407917731581657089';
 const rogerID = '431654339359277067';
-const extraID = '3880377987724738590';
+const extraID = '388037798772473859';
 const marketID = '413877823489703947';
 
 // variable area
@@ -121,7 +121,7 @@ bot.on('guildMemberAdd', (member) => {
 bot.on('message', (user, userID, channelID, message, evt) => {
 
     // brainlet roger and alien
-    if (userID === rogerID || userID === alienID || userID === extraID) {
+    if (userID === rogerID || userID === alienID) {
         bot.addReaction({
             channelID: channelID,
             messageID: evt.d.id,
