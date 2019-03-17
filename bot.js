@@ -15,7 +15,7 @@ const Globals = {
     geckoInfo: undefined,
     pricePerMillion: undefined,
     litPrice: undefined,
-    litecoinPrice: undefined,
+	litecoinPrice: undefined,
     satPrice: undefined,
     networkInfo: undefined,
     networkQuery: undefined,
@@ -351,7 +351,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                                 value: `TRTL/LTC: **${Globals.litPrice.toFixed(0)} litoshi**\n` +
                                     `TRTL/BTC: **${Globals.satPrice.toFixed(0)} satoshi**\n` +
                                     `USD Per Million: **$${Globals.pricePerMillion.toFixed(2)}**\n` +
-				                            `Litecoin Price: **$${Globals.litecoinPrice.toFixed(2)}**`
+									`Litecoin Price: **$${Globals.litecoinPrice.toFixed(2)}**`
                             },
                             {
                                 name: `Movement ${Globals.gainsEmoji}`,
@@ -427,7 +427,7 @@ async function getOgreLTCInfo() {
 async function getOgreLitecoinInfo() {
     const requestOptions = {
         method: 'GET',
-        uri: 'https://tradeogre.com/api/v1/ticker/BTC-TRTL',
+        uri: 'https://tradeogre.com/api/v1/ticker/BTC-LTC',
         headers: {},
         json: true,
         gzip: true
