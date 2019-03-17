@@ -1,4 +1,4 @@
-﻿// requires
+// requires
 const discord = require('discord.io');
 const request = require('request-promise');
 const auth = require('./auth.json');
@@ -15,6 +15,7 @@ const Globals = {
     geckoInfo: undefined,
     pricePerMillion: undefined,
     litPrice: undefined,
+    litecoinPrice: undefined,
     satPrice: undefined,
     networkInfo: undefined,
     networkQuery: undefined,
@@ -41,12 +42,13 @@ function getRandomInt(min, max) {
 // function to get random insult
 function getInsult() {
     return insults[getRandomInt(0, insults.length)];
-}  
+}
 
 // async block
 async function update() {
     Globals.ogreLTCInfo = await getOgreLTCInfo();
     Globals.ogreBTCInfo = await getOgreBTCInfo();
+    Globals.litecoinPrice = await getOgreLitecoinInfo();
     Globals.geckoInfo = await getGeckoInfo();
     Globals.networkQuery = await getNetworkInfo();
     if (Globals.networkQuery !== undefined) {
@@ -57,6 +59,7 @@ async function update() {
     Globals.totalNodes = await getTotalNodes();
     Globals.pricePerMillion = Globals.geckoInfo.current_price * 1000000;
     Globals.litPrice = Math.round(Globals.ogreLTCInfo.price * 100000000);
+    Globals.litecoinPrice = Globals.o
     Globals.satPrice = Math.round(Globals.ogreBTCInfo.price * 100000000);
     Globals.avgTx = Globals.networkInfo.tx_count / Globals.networkInfo.height;
     Globals.netHash = Globals.networkInfo.hashrate / 1000000;
@@ -91,7 +94,7 @@ bot.on('error', console.error);
 // logs every single event
 bot.on('any', (event) => {
 	console.log(event)
-}); 
+});
 */
 
 // reconnect if disconected
@@ -180,7 +183,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                     message: `The current global hashrate is **${Globals.netHash.toFixed(2)} MH/s**`
                 });
             }
-        }   
+        }
 
         // height command
         if (cmd === 'height') {
@@ -203,8 +206,8 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                     message: `The current  block height is **${numberWithCommas(Globals.networkInfo.height)}**`
                 });
             }
-        }   
-        
+        }
+
         // help command
         if (cmd === 'help') {
             console.log('** Help menu message sent');
@@ -248,7 +251,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                     message: `A 2019 Lamborghini Huracan costs roughly **${numberWithCommas(Globals.lamboPrice.toFixed(2))} TRTL**`
                 });
             }
-        }   
+        }
 
         // mcap command
         if (cmd === 'mcap') {
@@ -315,7 +318,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                 });
             }
         }
-        
+
         // price command
         if (cmd === 'price') {
             // check that none of the variables are undefined
@@ -347,7 +350,8 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                                 name: "Price",
                                 value: `TRTL/LTC: **${Globals.litPrice.toFixed(0)} litoshi**\n` +
                                     `TRTL/BTC: **${Globals.satPrice.toFixed(0)} satoshi**\n` +
-                                    `USD Per Million: **$${Globals.pricePerMillion.toFixed(2)}**`
+                                    `USD Per Million: **$${Globals.pricePerMillion.toFixed(2)}**\n` +
+				                            `Litecoin Price: **$${Globals.litecoinPrice.toFixed(2)}**`
                             },
                             {
                                 name: `Movement ${Globals.gainsEmoji}`,
@@ -386,8 +390,8 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                     message: `The current circulating supply is **${numberWithCommas(Globals.geckoInfo.circulating_supply)}** TRTL`
                 });
             }
-        } 
-        
+        }
+
         // whine command
         if (cmd === 'whine') {
             console.log('** Told someone to nut up and stop being a sniveling bitch');
@@ -395,16 +399,35 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                 to: channelID,
                 message: 'Don\'t be such a sniveling little bitch.'
             });
-        } 
+        }
 
     }
 });
 
-// get LTC Info from TradeOgre
+// get LTC-TRTL Info from TradeOgre
 async function getOgreLTCInfo() {
     const requestOptions = {
         method: 'GET',
         uri: 'https://tradeogre.com/api/v1/ticker/LTC-TRTL',
+        headers: {},
+        json: true,
+        gzip: true
+    };
+    try {
+        const result = await request(requestOptions);
+        //console.log(result);
+        return result;
+    } catch (err) {
+        console.log('Request failed, TradeOgre API call error:\n', err);
+        return undefined;
+    }
+}
+
+// get LTC Info from TradeOgre
+async function getOgreLitecoinInfo() {
+    const requestOptions = {
+        method: 'GET',
+        uri: 'https://tradeogre.com/api/v1/ticker/BTC-TRTL',
         headers: {},
         json: true,
         gzip: true
@@ -493,4 +516,3 @@ async function getTotalNodes() {
         console.log('Request failed, ShellMaps API call error: \n', err);
         return undefined;
     }
-}
