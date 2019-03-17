@@ -16,6 +16,8 @@ const Globals = {
     pricePerMillion: undefined,
     litPrice: undefined,
     satPrice: undefined,
+    litecoinInfo: undefined,
+    bitcoinInfo: undefined,
     networkInfo: undefined,
     networkQuery: undefined,
     avgTx: undefined,
@@ -49,6 +51,8 @@ async function update() {
     Globals.ogreBTCInfo = await getOgreBTCInfo();
     Globals.geckoInfo = await getGeckoInfo();
     Globals.networkQuery = await getNetworkInfo();
+    Globals.litecoinInfo = await getGeckoInfoLTC();
+    Globals.bitcoinInfo = await getGeckoInfoBTC();
     if (Globals.networkQuery !== undefined) {
         Globals.networkInfo = Globals.networkQuery;
     } else {
@@ -346,19 +350,19 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                             {
                                 name: "Price",
                                 value: `TRTL/LTC: **${Globals.litPrice.toFixed(0)} litoshi**\n` +
-                                    `TRTL/BTC: **${Globals.satPrice.toFixed(0)} satoshi**\n` +
-                                    `USD Per Million: **$${Globals.pricePerMillion.toFixed(2)}**`
+                                       `TRTL/BTC: **${Globals.satPrice.toFixed(0)} satoshi**\n` +
+                                       `USD Per Million: **$${Globals.pricePerMillion.toFixed(2)}**\n\n`
                             },
                             {
                                 name: `Movement ${Globals.gainsEmoji}`,
                                 value: `24h Change: **${Globals.geckoInfo.price_change_percentage_24h.toFixed(2)}%**\n` +
-                                    `24h Volume: **$${numberWithCommas(Globals.geckoInfo.total_volume.toFixed(2))}**\n` +
-                                    `Market Cap: **$${numberWithCommas(Globals.geckoInfo.market_cap.toFixed(2))}**\n` +
-                                    `Current Supply: **${numberWithCommas(Globals.geckoInfo.circulating_supply)} TRTL**`
+                                       `24h Volume: **$${numberWithCommas(Globals.geckoInfo.total_volume.toFixed(2))}**\n` +
+                                       `Market Cap: **$${numberWithCommas(Globals.geckoInfo.market_cap.toFixed(2))}**\n` +
+                                       `Current Supply: **${numberWithCommas(Globals.geckoInfo.circulating_supply)} TRTL**`
                             }
                         ],
                         footer: {
-                            text: 'MarketTalk © 2019 ExtraHash'
+                            text: `LTC: $${numberWithCommas(Globals.litecoinInfo.current_price.toFixed(2))}    BTC: $${numberWithCommas(Globals.bitcoinInfo.current_price.toFixed(2))} `
                         }
                     }
                 });
@@ -457,11 +461,49 @@ async function getGeckoInfo() {
     }
 }
 
+// get LTC Info from CoinGecko
+async function getGeckoInfoLTC() {
+    const requestOptions = {
+        method: 'GET',
+        uri: 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=litecoin&order=market_cap_desc&per_page=100&page=1&sparkline=false',
+        headers: {},
+        json: true,
+        gzip: true
+    };
+    try {
+        const result = await request(requestOptions);
+        //console.log(result[0]);
+        return result[0];
+    } catch (err) {
+        console.log('Request failed, CoinGecko ltc API call error: \n', err);
+        return undefined;
+    }
+}
+
+// get BTC Info from CoinGecko
+async function getGeckoInfoBTC() {
+    const requestOptions = {
+        method: 'GET',
+        uri: 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin&order=market_cap_desc&per_page=100&page=1&sparkline=false',
+        headers: {},
+        json: true,
+        gzip: true
+    };
+    try {
+        const result = await request(requestOptions);
+        //console.log(result[0]);
+        return result[0];
+    } catch (err) {
+        console.log('Request failed, CoinGecko btc API call error: \n', err);
+        return undefined;
+    }
+}
+
 // get TRTL Network Info from TurteCoin node
 async function getNetworkInfo() {
     const requestOptions = {
         method: 'GET',
-        uri: 'http://node.turtlepool.space:11898/getinfo',
+        uri: 'http://extrahash.tk:11898/getinfo',
         headers: {},
         json: true,
         gzip: true
