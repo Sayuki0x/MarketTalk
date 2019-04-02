@@ -47,18 +47,18 @@ function getInsult() {
 
 // async block
 async function update() {
-    Globals.ogreLTCInfo = await getOgreLTCInfo();
-    Globals.ogreBTCInfo = await getOgreBTCInfo();
-    Globals.geckoInfo = await getGeckoInfo();
-    Globals.networkQuery = await getNetworkInfo();
-    Globals.litecoinInfo = await getGeckoInfoLTC();
-    Globals.bitcoinInfo = await getGeckoInfoBTC();
+    Globals.ogreLTCInfo = await getData('https://tradeogre.com/api/v1/ticker/LTC-TRTL', 'ogreLTCInfo');
+    Globals.ogreBTCInfo = await getData('https://tradeogre.com/api/v1/ticker/BTC-TRTL', 'ogreBTCInfo');
+    Globals.networkQuery = await getData('http://extrahash.tk:11898/getinfo', 'networkQuery');
     if (Globals.networkQuery !== undefined) {
         Globals.networkInfo = Globals.networkQuery;
     } else {
         console.log("** Got undefined data from node")
     }
-    Globals.totalNodes = await getTotalNodes();
+    Globals.geckoInfo = (await getData('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=turtlecoin&order=market_cap_desc&per_page=100&page=1&sparkline=false', 'geckoTRTLInfo'))[0];
+    Globals.litecoinInfo = (await getData('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=litecoin&order=market_cap_desc&per_page=100&page=1&sparkline=false', 'geckoLTCInfo'))[0];
+    Globals.bitcoinInfo = (await getData('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin&order=market_cap_desc&per_page=100&page=1&sparkline=false', 'geckoBTCInfo'))[0];
+    Globals.totalNodes = await getData('https://shellmap.mine2gether.com/api/stats', 'shellmaps');
     Globals.pricePerMillion = Globals.geckoInfo.current_price * 1000000;
     Globals.litPrice = Math.round(Globals.ogreLTCInfo.price * 100000000);
     Globals.satPrice = Math.round(Globals.ogreBTCInfo.price * 100000000);
@@ -280,7 +280,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
          // network command
          if (cmd === 'network') {
             // check that none of the variables are undefined
-            if (Globals.netHash === undefined || Globals.networkInfo === undefined || Globals.totalNodes === undefined) {
+            if (Globals.netHash === undefined || Globals.networkInfo === undefined || Globals.totalNodes.globalData.nodeCount === undefined) {
                 console.log('** Undefined network info requested');
                 bot.sendMessage({
                     to: channelID,
@@ -304,7 +304,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                                 name: "Stats",
                                 value: `Network Hashrate: **${Globals.netHash.toFixed(2)} MH/s**\n` +
                                     `Current Height: **${numberWithCommas(Globals.networkInfo.height)}**\n` +
-                                    `Total Nodes: **${numberWithCommas(Globals.totalNodes)}**`
+                                    `Total Nodes: **${numberWithCommas(Globals.totalNodes.globalData.nodeCount)}**`
                             },
                             {
                                 name: "Transactions",
@@ -404,135 +404,21 @@ bot.on('message', (user, userID, channelID, message, evt) => {
     }
 });
 
-// get LTC Info from TradeOgre
-async function getOgreLTCInfo() {
+// get data from http request and store it in variable
+async function getData(apiURL, name) {
     const requestOptions = {
         method: 'GET',
-        uri: 'https://tradeogre.com/api/v1/ticker/LTC-TRTL',
+        uri: apiURL,
         headers: {},
         json: true,
         gzip: true
     };
     try {
         const result = await request(requestOptions);
-        //console.log(result);
+        // console.log(apiURL, name, result);
         return result;
     } catch (err) {
-        console.log('Request failed, TradeOgre API call error:\n', err);
-        return undefined;
-    }
-}
-
-// get BTC Info from TradeOgre
-async function getOgreBTCInfo() {
-    const requestOptions = {
-        method: 'GET',
-        uri: 'https://tradeogre.com/api/v1/ticker/BTC-TRTL',
-        headers: {},
-        json: true,
-        gzip: true
-    };
-    try {
-        const result = await request(requestOptions);
-        //console.log(result);
-        return result;
-    } catch (err) {
-        console.log('Request failed, TradeOgre API call error:', err);
-        return undefined;
-    }
-}
-
-// get TRTL Info from CoinGecko
-async function getGeckoInfo() {
-    const requestOptions = {
-        method: 'GET',
-        uri: 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=turtlecoin&order=market_cap_desc&per_page=100&page=1&sparkline=false',
-        headers: {},
-        json: true,
-        gzip: true
-    };
-    try {
-        const result = await request(requestOptions);
-        //console.log(result[0]);
-        return result[0];
-    } catch (err) {
-        console.log('Request failed, CoinGecko trtl API call error: \n', err);
-        return undefined;
-    }
-}
-
-// get LTC Info from CoinGecko
-async function getGeckoInfoLTC() {
-    const requestOptions = {
-        method: 'GET',
-        uri: 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=litecoin&order=market_cap_desc&per_page=100&page=1&sparkline=false',
-        headers: {},
-        json: true,
-        gzip: true
-    };
-    try {
-        const result = await request(requestOptions);
-        //console.log(result[0]);
-        return result[0];
-    } catch (err) {
-        console.log('Request failed, CoinGecko ltc API call error: \n', err);
-        return undefined;
-    }
-}
-
-// get BTC Info from CoinGecko
-async function getGeckoInfoBTC() {
-    const requestOptions = {
-        method: 'GET',
-        uri: 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin&order=market_cap_desc&per_page=100&page=1&sparkline=false',
-        headers: {},
-        json: true,
-        gzip: true
-    };
-    try {
-        const result = await request(requestOptions);
-        //console.log(result[0]);
-        return result[0];
-    } catch (err) {
-        console.log('Request failed, CoinGecko btc API call error: \n', err);
-        return undefined;
-    }
-}
-
-// get TRTL Network Info from TurteCoin node
-async function getNetworkInfo() {
-    const requestOptions = {
-        method: 'GET',
-        uri: 'http://extrahash.tk:11898/getinfo',
-        headers: {},
-        json: true,
-        gzip: true
-    };
-    try {
-        const result = await request(requestOptions);
-        //console.log(result);
-        return result;
-    } catch (err) {
-        console.log('Request failed, TurtleCoin Node API call error');
-        return undefined;
-    }
-}
-
-// get TRTL Network Info from ShellMaps
-async function getTotalNodes() {
-    const requestOptions = {
-        method: 'GET',
-        uri: 'https://shellmap.mine2gether.com/api/stats',
-        headers: {},
-        json: true,
-        gzip: true
-    };
-    try {
-        const result = await request(requestOptions);
-        //console.log(`Shellmaps Total Node Count: ${result.globalData.nodeCount}`);
-        return result.globalData.nodeCount;
-    } catch (err) {
-        console.log('Request failed, ShellMaps API call error: \n', err);
+        console.log(`Request failed, ${name} API call error: \n`, err);
         return undefined;
     }
 }
