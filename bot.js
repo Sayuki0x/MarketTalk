@@ -13,6 +13,8 @@ const Globals = {
     ogreLTCInfo: undefined,
     ogreBTCInfo: undefined,
     geckoInfo: undefined,
+    geckoBTCPrice: undefined,
+    geckoLTCPrice: undefined,
     pricePerMillion: undefined,
     litPrice: undefined,
     satPrice: undefined,
@@ -47,6 +49,8 @@ function getInsult() {
 
 // async block
 async function update() {
+    Globals.geckoLTCPrice = (await getData('https://api.coingecko.com/api/v3/coins/markets?vs_currency=ltc&ids=turtlecoin&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=7d'))[0];
+    Globals.geckoBTCPrice = (await getData('https://api.coingecko.com/api/v3/coins/markets?vs_currency=btc&ids=turtlecoin&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=7d', 'geckoBTCPrice'))[0];
     Globals.ogreLTCInfo = await getData('https://tradeogre.com/api/v1/ticker/LTC-TRTL', 'ogreLTCInfo');
     Globals.ogreBTCInfo = await getData('https://tradeogre.com/api/v1/ticker/BTC-TRTL', 'ogreBTCInfo');
     Globals.networkQuery = await getData('http://extrahash.tk:11898/getinfo', 'networkQuery');
@@ -349,8 +353,8 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                             },
                             {
                                 name: "Price",
-                                value: `TRTL/LTC: **${Globals.litPrice.toFixed(0)} litoshi**\n` +
-                                       `TRTL/BTC: **${Globals.satPrice.toFixed(0)} satoshi**\n` +
+                                value: `TRTL/LTC: **${(Globals.geckoLTCPrice.current_price * 100000000).toFixed(0)} lit**\n` +
+                                       `TRTL/BTC: **${((Globals.geckoBTCPrice.current_price).toFixed(10) * 100000000).toFixed(2)} sat**\n` +
                                        `USD Per Million: **$${Globals.pricePerMillion.toFixed(2)}**\n\n`
                             },
                             {
