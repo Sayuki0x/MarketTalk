@@ -129,7 +129,7 @@ bot.on('guildMemberAdd', (member) => {
 bot.on('message', (user, userID, channelID, message, evt) => {
 
     // brainlet roger and alien
-    if (userID === rogerID || userID === alienID) {
+    if (userID === 123) {
         bot.addReaction({
             channelID: channelID,
             messageID: evt.d.id,
