@@ -10,23 +10,16 @@ const marketID = '413877823489703947';
 
 // variable area
 const Globals = {
-    ogreLTCInfo: undefined,
-    ogreBTCInfo: undefined,
     geckoInfo: undefined,
     geckoBTCPrice: undefined,
     geckoLTCPrice: undefined,
-    pricePerMillion: undefined,
-    litPrice: undefined,
-    satPrice: undefined,
     litecoinInfo: undefined,
     bitcoinInfo: undefined,
     networkInfo: undefined,
     networkQuery: undefined,
-    avgTx: undefined,
-    netHash: undefined,
     totalNodes: undefined,
-    gainsEmoji: undefined,
 };
+
 const bot = new discord.Client({
     token: auth.token,
     autorun: true
@@ -47,32 +40,30 @@ function getInsult() {
     return insults[getRandomInt(0, insults.length)];
 }  
 
+// function to decide emoji to print
+function getGainsEmoji() {
+    if (Globals.geckoInfo.price_change_percentage_24h > 0) {
+        return '📈';
+    } else {
+        return '📉';
+    }
+}
+
 // async block
 async function update() {
+    // get all api data
+    Globals.geckoInfo = (await getData('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=turtlecoin&order=market_cap_desc&per_page=100&page=1&sparkline=false', 'geckoTRTLInfo'))[0];
     Globals.geckoLTCPrice = (await getData('https://api.coingecko.com/api/v3/coins/markets?vs_currency=ltc&ids=turtlecoin&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=7d'))[0];
     Globals.geckoBTCPrice = (await getData('https://api.coingecko.com/api/v3/coins/markets?vs_currency=btc&ids=turtlecoin&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=7d', 'geckoBTCPrice'))[0];
-    Globals.ogreLTCInfo = await getData('https://tradeogre.com/api/v1/ticker/LTC-TRTL', 'ogreLTCInfo');
-    Globals.ogreBTCInfo = await getData('https://tradeogre.com/api/v1/ticker/BTC-TRTL', 'ogreBTCInfo');
     Globals.networkQuery = await getData('http://extrahash.tk:11898/getinfo', 'networkQuery');
+    Globals.litecoinInfo = (await getData('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=litecoin&order=market_cap_desc&per_page=100&page=1&sparkline=false', 'geckoLTCInfo'))[0];
+    Globals.bitcoinInfo = (await getData('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin&order=market_cap_desc&per_page=100&page=1&sparkline=false', 'geckoBTCInfo'))[0];
+    Globals.totalNodes = await getData('https://shellmap.mine2gether.com/api/stats', 'shellmaps');
+    // only write the data into the variable if it is defined
     if (Globals.networkQuery !== undefined) {
         Globals.networkInfo = Globals.networkQuery;
     } else {
         console.log("** Got undefined data from node")
-    }
-    Globals.geckoInfo = (await getData('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=turtlecoin&order=market_cap_desc&per_page=100&page=1&sparkline=false', 'geckoTRTLInfo'))[0];
-    Globals.litecoinInfo = (await getData('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=litecoin&order=market_cap_desc&per_page=100&page=1&sparkline=false', 'geckoLTCInfo'))[0];
-    Globals.bitcoinInfo = (await getData('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin&order=market_cap_desc&per_page=100&page=1&sparkline=false', 'geckoBTCInfo'))[0];
-    Globals.totalNodes = await getData('https://shellmap.mine2gether.com/api/stats', 'shellmaps');
-    Globals.pricePerMillion = Globals.geckoInfo.current_price * 1000000;
-    Globals.litPrice = Math.round(Globals.ogreLTCInfo.price * 100000000);
-    Globals.satPrice = Math.round(Globals.ogreBTCInfo.price * 100000000);
-    Globals.avgTx = Globals.networkInfo.tx_count / Globals.networkInfo.height;
-    Globals.netHash = Globals.networkInfo.hashrate / 1000000;
-    Globals.lamboPrice = 199800 / Globals.geckoInfo.current_price
-    if (Globals.geckoInfo.price_change_percentage_24h > 0) {
-        Globals.gainsEmoji = '📈';
-    } else {
-        Globals.gainsEmoji = '📉';
     }
 }
 
@@ -94,13 +85,6 @@ bot.on('ready', (evt) => {
 
 // error logging
 bot.on('error', console.error);
-
-/*
-// logs every single event
-bot.on('any', (event) => {
-	console.log(event)
-}); 
-*/
 
 // reconnect if disconected
 bot.on('disconnect', function() {
@@ -128,7 +112,7 @@ bot.on('guildMemberAdd', (member) => {
 // on message handling
 bot.on('message', (user, userID, channelID, message, evt) => {
 
-    // brainlet roger and alien
+    // brainlet 
     if (userID === 123) {
         bot.addReaction({
             channelID: channelID,
@@ -139,15 +123,15 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             }
         })
     }
-
+    
     // listen for messages that will start with `!`
     if (message[0] === '!') {
         const [cmd, args] = message.substring(1).split(' ');
-
+    
         // difficulty command
         if (cmd === 'difficulty') {
             // check that none of the variables are undefined
-            if (Globals.networkInfo.hashrate === undefined) {
+            if (Globals.networkInfo === undefined) {
                 console.log('** Undefined difficulty requested');
                 bot.sendMessage({
                     to: channelID,
@@ -162,7 +146,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                 });
                 bot.sendMessage({
                     to: channelID,
-                    message: `The current difficulty is **${numberWithCommas(Globals.networkInfo.hashrate * 30)}**`
+                    message: `The current difficulty is **${(Globals.networkInfo.hashrate / 1000000)}**`
                 });
             }
         }
@@ -170,7 +154,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
         // hashrate command
         if (cmd === 'hashrate') {
             // check that none of the variables are undefined
-            if (Globals.netHash === undefined) {
+            if (Globals.networkInfo === undefined) {
                 console.log('** Undefined hashrate requested');
                 bot.sendMessage({
                     to: channelID,
@@ -185,7 +169,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                 });
                 bot.sendMessage({
                     to: channelID,
-                    message: `The current global hashrate is **${Globals.netHash.toFixed(2)} MH/s**`
+                    message: `The current global hashrate is **${(Globals.networkInfo.hashrate / 1000000).toFixed(2)} MH/s**`
                 });
             }
         }   
@@ -238,7 +222,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
         // lambo command
         if (cmd === 'lambo') {
             // check that none of the variables are undefined
-            if (Globals.lamboPrice === undefined) {
+            if (Globals.geckoInfo === undefined) {
                 console.log('** Undefined lambo price requested');
                 bot.sendMessage({
                     to: channelID,
@@ -253,7 +237,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                 });
                 bot.sendMessage({
                     to: channelID,
-                    message: `A 2019 Lamborghini Huracan costs roughly **${numberWithCommas(Globals.lamboPrice.toFixed(2))} TRTL**`
+                    message: `A 2019 Lamborghini Huracan costs roughly **${numberWithCommas((199800 / Globals.geckoInfo.current_price).toFixed(2))} TRTL**`
                 });
             }
         }   
@@ -284,7 +268,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
          // network command
          if (cmd === 'network') {
             // check that none of the variables are undefined
-            if (Globals.netHash === undefined || Globals.networkInfo === undefined || Globals.totalNodes.globalData.nodeCount === undefined) {
+            if (Globals.networkInfo === undefined || Globals.totalNodes.globalData.nodeCount === undefined) {
                 console.log('** Undefined network info requested');
                 bot.sendMessage({
                     to: channelID,
@@ -306,13 +290,13 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                         },
                         fields: [{
                                 name: "Stats",
-                                value: `Network Hashrate: **${Globals.netHash.toFixed(2)} MH/s**\n` +
+                                value: `Network Hashrate: **${(Globals.networkInfo.hashrate / 1000000).toFixed(2)} MH/s**\n` +
                                     `Current Height: **${numberWithCommas(Globals.networkInfo.height)}**\n` +
                                     `Total Nodes: **${numberWithCommas(Globals.totalNodes.globalData.nodeCount)}**`
                             },
                             {
                                 name: "Transactions",
-                                value: `Avg TX/Block: **${Globals.avgTx.toFixed(2)}**\n` +
+                                value: `Avg TX/Block: **${(Globals.networkInfo.tx_count / Globals.networkInfo.height).toFixed(2)}**\n` +
                                     `TX in Mempool: **${numberWithCommas(Globals.networkInfo.tx_pool_size)}**`
                             }
                         ],
@@ -327,7 +311,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
         // price command
         if (cmd === 'price') {
             // check that none of the variables are undefined
-            if (Globals.litPrice === undefined || Globals.satPrice === undefined || Globals.pricePerMillion === undefined || Globals.geckoInfo.price_change_percentage_24h === undefined || Globals.geckoInfo.total_volume === undefined || Globals.geckoInfo.market_cap === undefined || Globals.geckoInfo.circulating_supply === undefined) {
+            if ( Globals.geckoInfo === undefined || Globals.geckoLTCPrice === undefined || Globals.geckoBTCPrice === undefined) {
                 console.log('** Undefined price info requested');
                 bot.sendMessage({
                     to: channelID,
@@ -355,10 +339,10 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                                 name: "Price",
                                 value: `TRTL/LTC: **${(Globals.geckoLTCPrice.current_price * 100000000).toFixed(0)} lit**\n` +
                                        `TRTL/BTC: **${((Globals.geckoBTCPrice.current_price).toFixed(10) * 100000000).toFixed(2)} sat**\n` +
-                                       `USD Per Million: **$${Globals.pricePerMillion.toFixed(2)}**\n\n`
+                                       `USD Per Million: **$${(Globals.geckoInfo.current_price * 1000000).toFixed(2)}**\n\n`
                             },
                             {
-                                name: `Movement ${Globals.gainsEmoji}`,
+                                name: `Movement ${getGainsEmoji()}`,
                                 value: `24h Change: **${Globals.geckoInfo.price_change_percentage_24h.toFixed(2)}%**\n` +
                                        `24h Volume: **$${numberWithCommas(Globals.geckoInfo.total_volume.toFixed(2))}**\n` +
                                        `Market Cap: **$${numberWithCommas(Globals.geckoInfo.market_cap.toFixed(2))}**\n` +
