@@ -16,8 +16,8 @@ const Globals = {
     litecoinInfo: undefined,
     bitcoinInfo: undefined,
     networkInfo: undefined,
-    networkQuery: undefined,
-    totalNodes: undefined,
+    transactionInfo: undefined,
+    totalNodes: undefined
 };
 
 const bot = new discord.Client({
@@ -55,16 +55,11 @@ async function update() {
     Globals.geckoInfo = (await getData('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=turtlecoin&order=market_cap_desc&per_page=100&page=1&sparkline=false', 'geckoTRTLInfo'))[0];
     Globals.geckoLTCPrice = (await getData('https://api.coingecko.com/api/v3/coins/markets?vs_currency=ltc&ids=turtlecoin&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=7d'))[0];
     Globals.geckoBTCPrice = (await getData('https://api.coingecko.com/api/v3/coins/markets?vs_currency=btc&ids=turtlecoin&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=7d', 'geckoBTCPrice'))[0];
-    Globals.networkQuery = await getData('http://extrahash.tk:11898/getinfo', 'networkQuery');
+    Globals.networkInfo = await getData('https://blockapi.turtlepay.io/block/header/top', 'networkQuery');
+    Globals.transactionInfo = await getData('https://blockapi.turtlepay.io/transaction/pool', 'transactionQuery');
     Globals.litecoinInfo = (await getData('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=litecoin&order=market_cap_desc&per_page=100&page=1&sparkline=false', 'geckoLTCInfo'))[0];
     Globals.bitcoinInfo = (await getData('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin&order=market_cap_desc&per_page=100&page=1&sparkline=false', 'geckoBTCInfo'))[0];
     Globals.totalNodes = await getData('https://shellmap.mine2gether.com/api/stats', 'shellmaps');
-    // only write the data into the variable if it is defined
-    if (Globals.networkQuery !== undefined) {
-        Globals.networkInfo = Globals.networkQuery;
-    } else {
-        console.log("** Got undefined data from node")
-    }
 }
 
 // refreshes variables every 5s
@@ -146,7 +141,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                 });
                 bot.sendMessage({
                     to: channelID,
-                    message: `The current difficulty is **${(Globals.networkInfo.hashrate / 1000000)}**`
+                    message: `The current difficulty is **${numberWithCommas(Globals.networkInfo.difficulty)}**`
                 });
             }
         }
@@ -169,7 +164,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                 });
                 bot.sendMessage({
                     to: channelID,
-                    message: `The current global hashrate is **${(Globals.networkInfo.hashrate / 1000000).toFixed(2)} MH/s**`
+                    message: `The current global hashrate is **${((Globals.networkInfo.difficulty / 30) / 1000000).toFixed(2)} MH/s**`
                 });
             }
         }   
@@ -265,10 +260,9 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             }
         }
 
-         // network command
-         if (cmd === 'network') {
+        if (cmd === 'network') {
             // check that none of the variables are undefined
-            if (Globals.networkInfo === undefined || Globals.totalNodes.globalData.nodeCount === undefined) {
+            if (Globals.networkInfo === undefined || Globals.transactionInfo === undefined) {
                 console.log('** Undefined network info requested');
                 bot.sendMessage({
                     to: channelID,
@@ -276,11 +270,6 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                 });
             } else {
                 console.log('** Network info message sent');
-                bot.addReaction({
-                    channelID: channelID,
-                    messageID: evt.d.id,
-                    reaction: '☑'
-                });
                 bot.sendMessage({
                     to: channelID,
                     embed: {
@@ -289,15 +278,16 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                             url: 'https://raw.githubusercontent.com/turtlecoin/turtlecoin.lol/master/images/favicons/apple-touch-icon-120x120.png',
                         },
                         fields: [{
-                                name: "Stats",
-                                value: `Network Hashrate: **${(Globals.networkInfo.hashrate / 1000000).toFixed(2)} MH/s**\n` +
-                                    `Current Height: **${numberWithCommas(Globals.networkInfo.height)}**\n` +
+                                name: 'Network Stats',
+                                value: `Height: **${numberWithCommas(Globals.networkInfo.height)}**\n` +
+                                    `Network Hashrate: **${((Globals.networkInfo.difficulty / 30) / 1000000).toFixed(2)} MH/s**\n` +
                                     `Total Nodes: **${numberWithCommas(Globals.totalNodes.globalData.nodeCount)}**`
                             },
                             {
-                                name: "Transactions",
-                                value: `Avg TX/Block: **${(Globals.networkInfo.tx_count / Globals.networkInfo.height).toFixed(2)}**\n` +
-                                    `TX in Mempool: **${numberWithCommas(Globals.networkInfo.tx_pool_size)}**`
+                                name: 'Coin Movement',
+                                value: `Block Reward: **${numberWithCommas((Globals.networkInfo.reward / 100).toFixed(2))} TRTL**\n` +
+                                    `TX in Mempool: **${Globals.transactionInfo.length}**\n` +
+                                    `Avg TX/Block: **${(Globals.networkInfo.alreadyGeneratedTransactions / Globals.networkInfo.height).toFixed(2)}**\n`
                             }
                         ],
                         footer: {
@@ -360,7 +350,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
         // supply command
         if (cmd === 'supply') {
             // check that none of the variables are undefined
-            if (Globals.networkInfo.height === undefined) {
+            if (Globals.networkInfo === undefined) {
                 console.log('** Undefined supply requested');
                 bot.sendMessage({
                     to: channelID,
@@ -375,7 +365,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                 });
                 bot.sendMessage({
                     to: channelID,
-                    message: `The current circulating supply is **${numberWithCommas(Globals.geckoInfo.circulating_supply)}** TRTL`
+                    message: `The current circulating supply is **${numberWithCommas(Globals.networkInfo.alreadyGeneratedCoins)}** TRTL`
                 });
             }
         } 
