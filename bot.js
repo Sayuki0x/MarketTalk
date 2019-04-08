@@ -336,7 +336,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                                 value: `24h Change: **${Globals.geckoInfo.price_change_percentage_24h.toFixed(2)}%**\n` +
                                        `24h Volume: **$${numberWithCommas(Globals.geckoInfo.total_volume.toFixed(2))}**\n` +
                                        `Market Cap: **$${numberWithCommas(Globals.geckoInfo.market_cap.toFixed(2))}**\n` +
-                                       `Current Supply: **${numberWithCommas(Globals.geckoInfo.circulating_supply)} TRTL**`
+                                       `Current Supply: **${(Globals.geckoInfo.circulating_supply / 1000000000).toFixed(2)}B TRTL**`
                             }
                         ],
                         footer: {
