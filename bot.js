@@ -379,6 +379,28 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             });
         } 
 
+        // viper command 4 phate
+        if (cmd === 'viper') {
+            // check that none of the variables are undefined
+            if (Globals.geckoInfo === undefined) {
+                console.log('** Undefined viper price requested');
+                bot.sendMessage({
+                    to: channelID,
+                    message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
+                });
+            } else {
+                console.log('** Current viper price message sent');
+                bot.addReaction({
+                    channelID: channelID,
+                    messageID: evt.d.id,
+                    reaction: '☑'
+                });
+                bot.sendMessage({
+                    to: channelID,
+                    message: `A Dodge Viper costs roughly **${numberWithCommas((150000 / Globals.geckoInfo.current_price).toFixed(2))} TRTL**`
+                });
+            }
+        }   
     }
 });
 
