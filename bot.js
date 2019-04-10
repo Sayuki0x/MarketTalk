@@ -365,7 +365,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                 });
                 bot.sendMessage({
                     to: channelID,
-                    message: `The current circulating supply is **${numberWithCommas(Globals.networkInfo.alreadyGeneratedCoins)}** TRTL`
+                    message: `The current circulating supply is **${(Globals.geckoInfo.circulating_supply / 1000000000).toFixed(2)}B TRTL**`
                 });
             }
         } 
