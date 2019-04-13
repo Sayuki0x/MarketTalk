@@ -1,11 +1,12 @@
 ﻿// requires
 const discord = require('discord.io');
 const request = require('request-promise');
+const fs = require('fs');
 const auth = require('./auth.json');
 const insults = require('./insults.json');
+let brainlets = require('./brainlets.json');
+const admin = require('./admin.json')
 const alienID = '407917731581657089';
-const rogerID = '431654339359277067';
-const extraID = '388037798772473859';
 const marketID = '413877823489703947';
 
 // variable area
@@ -38,7 +39,7 @@ function getRandomInt(min, max) {
 // function to get random insult
 function getInsult() {
     return insults[getRandomInt(0, insults.length)];
-}  
+}
 
 // function to decide emoji to print
 function getGainsEmoji() {
@@ -83,8 +84,8 @@ bot.on('error', console.error);
 
 // reconnect if disconected
 bot.on('disconnect', function() {
-	console.log("** Bot disconnected, reconnecting...");
-	bot.connect()  //Auto reconnect
+    console.log("** Bot disconnected, reconnecting...");
+    bot.connect() //Auto reconnect
 });
 
 // on new member joining
@@ -107,8 +108,8 @@ bot.on('guildMemberAdd', (member) => {
 // on message handling
 bot.on('message', (user, userID, channelID, message, evt) => {
 
-    // brainlet 
-    if (userID === 123) {
+    // brainlet users in the brainlet array
+    if (brainlets.indexOf(userID) > -1) {
         bot.addReaction({
             channelID: channelID,
             messageID: evt.d.id,
@@ -118,11 +119,132 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             }
         })
     }
-    
+
     // listen for messages that will start with `!`
     if (message[0] === '!') {
         const [cmd, args] = message.substring(1).split(' ');
-    
+
+        // brainlet command
+        if (cmd === 'brainlet') {
+            if (admin.indexOf(userID) > -1) {
+                if (args[0] === '<' && args[1] === '@') {
+                    let newBrainlet = (args.slice(0, -1)).slice(2);
+                    let brainletArray = brainlets;
+                    if (brainletArray.indexOf(newBrainlet) > -1) {
+                        console.log('** requested brainlet that is already in the array');
+                    } else {
+                        brainletArray.push(newBrainlet);
+                        fs.writeFile('./brainlets.json', JSON.stringify(brainletArray), function(err) {
+                            if (err) throw err;
+                            console.log('** new brainlet stored')
+                        });
+                        brainlets = brainletArray;
+                    }
+                    bot.addReaction({
+                        channelID: channelID,
+                        messageID: evt.d.id,
+                        reaction: '☑'
+                    });
+                };
+            } else {
+                let brainletArray = brainlets;
+                if (brainletArray.indexOf(userID) > -1) {
+                    console.log('** automatic requested brainlet that is already in the array');
+                } else {
+                    brainletArray.push(userID);
+                    fs.writeFile('./brainlets.json', JSON.stringify(brainletArray), function(err) {
+                        if (err) throw err;
+                        console.log('** automatic new brainlet stored')
+                        bot.addReaction({
+                            channelID: channelID,
+                            messageID: evt.d.id,
+                            reaction: '☑'
+                        });
+                    });
+                    brainlets = brainletArray;
+                }
+            }
+        };
+
+        // unbrainlet command
+        if (cmd === 'unbrainlet') {
+            if (admin.indexOf(userID) > -1) {
+                if (args[0] === '<' && args[1] === '@') {
+                    let formerBrainlet = (args.slice(0, -1)).slice(2);
+                    let brainletArray = brainlets;
+                    if (brainletArray.indexOf(formerBrainlet) === -1) {
+                        console.log('** requested brainlet removal that was not in the array');
+                        bot.addReaction({
+                            channelID: channelID,
+                            messageID: evt.d.id,
+                            reaction: '🚫'
+                        });
+                    } else {
+                        for (var i = brainletArray.length - 1; i >= 0; i--) {
+                            if (brainletArray[i] === formerBrainlet) {
+                                brainletArray.splice(i, 1);
+                            }
+                        }
+                        fs.writeFile('./brainlets.json', JSON.stringify(brainletArray), function(err) {
+                            if (err) throw err;
+                            console.log('** brainlet removed')
+                        });
+                        brainlets = brainletArray;
+                    }
+                };
+            } else {
+                let brainletArray = brainlets;
+                if (brainletArray.indexOf(userID) > -1) {
+                    console.log('** automatic requested brainlet that is already in the array');
+                } else {
+                    brainletArray.push(userID);
+                    fs.writeFile('./brainlets.json', JSON.stringify(brainletArray), function(err) {
+                        if (err) throw err;
+                        console.log('** automatic new brainlet stored')
+                        bot.addReaction({
+                            channelID: channelID,
+                            messageID: evt.d.id,
+                            reaction: '☑'
+                        });
+                    });
+                    brainlets = brainletArray;
+                }
+            }
+        };
+
+        if (cmd === 'clearbrainlets') {
+            if (admin.indexOf(userID) > -1) {
+                const emptyArray = [];
+                brainlets = emptyArray;
+                fs.writeFile('./brainlets.json', JSON.stringify(emptyArray), function(err) {
+                    if (err) throw err;
+                    console.log('** all brainlets deleted');
+                })
+                bot.addReaction({
+                    channelID: channelID,
+                    messageID: evt.d.id,
+                    reaction: '☑'
+                });
+            } else {
+                let brainletArray = brainlets;
+                if (brainletArray.indexOf(userID) > -1) {
+                    console.log('** automatic requested brainlet that is already in the array');
+                } else {
+                    brainletArray.push(userID);
+                    fs.writeFile('./brainlets.json', JSON.stringify(brainletArray), function(err) {
+                        if (err) throw err;
+                        console.log('** automatic new brainlet stored')
+                        bot.addReaction({
+                            channelID: channelID,
+                            messageID: evt.d.id,
+                            reaction: '☑'
+                        });
+                    });
+                    brainlets = brainletArray;
+                }
+            }
+        }
+
         // difficulty command
         if (cmd === 'difficulty') {
             // check that none of the variables are undefined
@@ -167,7 +289,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                     message: `The current global hashrate is **${((Globals.networkInfo.difficulty / 30) / 1000000).toFixed(2)} MH/s**`
                 });
             }
-        }   
+        }
 
         // height command
         if (cmd === 'height') {
@@ -190,8 +312,8 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                     message: `The current  block height is **${numberWithCommas(Globals.networkInfo.height)}**`
                 });
             }
-        }   
-        
+        }
+
         // help command
         if (cmd === 'help') {
             console.log('** Help menu message sent');
@@ -235,7 +357,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                     message: `A 2019 Lamborghini Huracan costs roughly **${numberWithCommas((199800 / Globals.geckoInfo.current_price).toFixed(2))} TRTL**`
                 });
             }
-        }   
+        }
 
         // mcap command
         if (cmd === 'mcap') {
@@ -297,11 +419,11 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                 });
             }
         }
-        
+
         // price command
         if (cmd === 'price') {
             // check that none of the variables are undefined
-            if ( Globals.geckoInfo === undefined || Globals.geckoLTCPrice === undefined || Globals.geckoBTCPrice === undefined) {
+            if (Globals.geckoInfo === undefined || Globals.geckoLTCPrice === undefined || Globals.geckoBTCPrice === undefined) {
                 console.log('** Undefined price info requested');
                 bot.sendMessage({
                     to: channelID,
@@ -328,15 +450,15 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                             {
                                 name: "Price",
                                 value: `TRTL/LTC: **${(Globals.geckoLTCPrice.current_price * 100000000).toFixed(0)} lit**\n` +
-                                       `TRTL/BTC: **${((Globals.geckoBTCPrice.current_price).toFixed(10) * 100000000).toFixed(2)} sat**\n` +
-                                       `USD Per Million: **$${(Globals.geckoInfo.current_price * 1000000).toFixed(2)}**\n\n`
+                                    `TRTL/BTC: **${((Globals.geckoBTCPrice.current_price).toFixed(10) * 100000000).toFixed(2)} sat**\n` +
+                                    `USD Per Million: **$${(Globals.geckoInfo.current_price * 1000000).toFixed(2)}**\n\n`
                             },
                             {
                                 name: `Movement ${getGainsEmoji()}`,
                                 value: `24h Change: **${Globals.geckoInfo.price_change_percentage_24h.toFixed(2)}%**\n` +
-                                       `24h Volume: **$${numberWithCommas(Globals.geckoInfo.total_volume.toFixed(2))}**\n` +
-                                       `Market Cap: **$${numberWithCommas(Globals.geckoInfo.market_cap.toFixed(2))}**\n` +
-                                       `Current Supply: **${(Globals.geckoInfo.circulating_supply / 1000000000).toFixed(2)}B TRTL**`
+                                    `24h Volume: **$${numberWithCommas(Globals.geckoInfo.total_volume.toFixed(2))}**\n` +
+                                    `Market Cap: **$${numberWithCommas(Globals.geckoInfo.market_cap.toFixed(2))}**\n` +
+                                    `Current Supply: **${(Globals.geckoInfo.circulating_supply / 1000000000).toFixed(2)}B TRTL**`
                             }
                         ],
                         footer: {
@@ -368,8 +490,8 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                     message: `The current circulating supply is **${(Globals.geckoInfo.circulating_supply / 1000000000).toFixed(2)}B TRTL**`
                 });
             }
-        } 
-        
+        }
+
         // whine command
         if (cmd === 'whine') {
             console.log('** Told someone to nut up and stop being a sniveling bitch');
@@ -377,7 +499,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                 to: channelID,
                 message: 'Don\'t be such a sniveling little bitch.'
             });
-        } 
+        }
 
         // viper command 4 phate
         if (cmd === 'viper') {
@@ -400,7 +522,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                     message: `A Dodge Viper costs roughly **${numberWithCommas((150000 / Globals.geckoInfo.current_price).toFixed(2))} TRTL**`
                 });
             }
-        }   
+        }
     }
 });
 
