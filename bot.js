@@ -128,7 +128,13 @@ bot.on('message', (user, userID, channelID, message, evt) => {
         if (cmd === 'brainlet') {
             if (admin.indexOf(userID) > -1) {
                 if (args[0] === '<' && args[1] === '@') {
-                    let newBrainlet = (args.slice(0, -1)).slice(2);
+                    let newBrainlet;
+                    let brainletID = (args.slice(0, -1)).slice(2);
+                    if (brainletID[0] != '!') {
+                        newBrainlet = brainletID;
+                    } else {
+                        newBrainlet = brainletID.slice(1);
+                    }
                     let brainletArray = brainlets;
                     if (brainletArray.indexOf(newBrainlet) > -1) {
                         console.log('** requested brainlet that is already in the array');
@@ -170,7 +176,13 @@ bot.on('message', (user, userID, channelID, message, evt) => {
         if (cmd === 'unbrainlet') {
             if (admin.indexOf(userID) > -1) {
                 if (args[0] === '<' && args[1] === '@') {
-                    let formerBrainlet = (args.slice(0, -1)).slice(2);
+                    let formerBrainlet;
+                    let brainletID = (args.slice(0, -1)).slice(2);
+                    if (brainletID[0] != '!') {
+                        formerBrainlet = brainletID;
+                    } else {
+                        formerBrainlet = brainletID.slice(1);
+                    }
                     let brainletArray = brainlets;
                     if (brainletArray.indexOf(formerBrainlet) === -1) {
                         console.log('** requested brainlet removal that was not in the array');
