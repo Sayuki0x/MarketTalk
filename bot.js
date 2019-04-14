@@ -2,11 +2,8 @@
 const discord = require('discord.io');
 const request = require('request-promise');
 const fs = require('fs');
-const auth = require('./auth.json');
-const insults = require('./insults.json');
 let brainlets = require('./brainlets.json');
-const admin = require('./admin.json')
-const alienID = '407917731581657089';
+const config = require('./config.json')
 const marketID = '413877823489703947';
 
 // variable area
@@ -22,23 +19,22 @@ const Globals = {
 };
 
 const bot = new discord.Client({
-    token: auth.token,
+    token: config.authtoken,
     autorun: true
 });
+
+// function to add a reaction
+function botReact(channelID, evt, reaction) {
+    bot.addReaction({
+        channelID: channelID,
+        messageID: evt.d.id,
+        reaction: reaction
+    });
+}
 
 // function to format numbers with commas like currency
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
-
-// function to get random integer in a range
-function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
-// function to get random insult
-function getInsult() {
-    return insults[getRandomInt(0, insults.length)];
 }
 
 // function to decide emoji to print
@@ -50,7 +46,35 @@ function getGainsEmoji() {
     }
 }
 
-// async block
+// Initialize Discord Bot
+init();
+
+// refreshes variables every 5s
+async function init() {
+    await update();
+    setInterval(update, 5000);
+}
+
+// get data from http request and store it in variable
+async function getData(apiURL, name) {
+    const requestOptions = {
+        method: 'GET',
+        uri: apiURL,
+        headers: {},
+        json: true,
+        gzip: true
+    };
+    try {
+        const result = await request(requestOptions);
+        // console.log(apiURL, name, result);
+        return result;
+    } catch (err) {
+        console.log(`Request failed, ${name} API call error: \n`, err);
+        return undefined;
+    }
+}
+
+// get data
 async function update() {
     // get all api data
     Globals.geckoInfo = (await getData('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=turtlecoin&order=market_cap_desc&per_page=100&page=1&sparkline=false', 'geckoTRTLInfo'))[0];
@@ -63,46 +87,22 @@ async function update() {
     Globals.totalNodes = await getData('https://shellmap.mine2gether.com/api/stats', 'shellmaps');
 }
 
-// refreshes variables every 5s
-async function init() {
-    await update();
-    setInterval(update, 5000);
-}
-
-// Initialize Discord Bot
-(async () => {
-    await init();
-})()
-
-// on log in
-bot.on('ready', (evt) => {
-    console.log(`** Connected, logged in as ${bot.username}-${bot.id} and listening for commands.`);
-});
-
-// error logging
-bot.on('error', console.error);
-
 // reconnect if disconected
 bot.on('disconnect', function() {
     console.log("** Bot disconnected, reconnecting...");
     bot.connect() //Auto reconnect
 });
 
+// error logging
+bot.on('error', console.error);
+
 // on new member joining
 bot.on('guildMemberAdd', (member) => {
-    if (member.id === alienID) {
-        console.log(`** Alien joined server, told him to go fuck himself`);
-        bot.sendMessage({
-            to: marketID,
-            message: `${getInsult()} <@${member.id}>`
-        });
-    } else {
-        console.log('** New member joined server, welcome message sent');
-        bot.sendMessage({
-            to: marketID,
-            message: `Hey <@${member.id}>, welcome to TurtleCoin!`
-        });
-    }
+    console.log('** New member joined server, welcome message sent');
+    bot.sendMessage({
+        to: marketID,
+        message: `Hey <@${member.id}>, welcome to TurtleCoin!`
+    });
 });
 
 // on message handling
@@ -110,14 +110,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
 
     // brainlet users in the brainlet array
     if (brainlets.indexOf(userID) > -1) {
-        bot.addReaction({
-            channelID: channelID,
-            messageID: evt.d.id,
-            reaction: {
-                name: 'brainlet',
-                id: '556550665095086080'
-            }
-        })
+        botReact(channelID, evt, {name: 'brainlet', id: '556550665095086080'});
     }
 
     // listen for messages that will start with `!`
@@ -126,7 +119,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
 
         // brainlet command
         if (cmd === 'brainlet') {
-            if (admin.indexOf(userID) > -1) {
+            if (config.adminID.indexOf(userID) > -1) {
                 if (args[0] === '<' && args[1] === '@') {
                     let newBrainlet;
                     let brainletID = (args.slice(0, -1)).slice(2);
@@ -138,21 +131,20 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                     let brainletArray = brainlets;
                     if (brainletArray.indexOf(newBrainlet) > -1) {
                         console.log('** requested brainlet that is already in the array');
+                        botReact(channelID, evt, '🚫');
                     } else {
+                        console.log('** new brainlet stored')
+                        botReact(channelID, evt, '☑');
                         brainletArray.push(newBrainlet);
                         fs.writeFile('./brainlets.json', JSON.stringify(brainletArray), function(err) {
                             if (err) throw err;
-                            console.log('** new brainlet stored')
                         });
                         brainlets = brainletArray;
                     }
-                    bot.addReaction({
-                        channelID: channelID,
-                        messageID: evt.d.id,
-                        reaction: '☑'
-                    });
                 };
             } else {
+                console.log('** brainletted unauthorized user');
+                botReact(channelID, evt, {name: 'brainlet', id: '556550665095086080'});
                 let brainletArray = brainlets;
                 if (brainletArray.indexOf(userID) > -1) {
                     console.log('** automatic requested brainlet that is already in the array');
@@ -161,11 +153,6 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                     fs.writeFile('./brainlets.json', JSON.stringify(brainletArray), function(err) {
                         if (err) throw err;
                         console.log('** automatic new brainlet stored')
-                        bot.addReaction({
-                            channelID: channelID,
-                            messageID: evt.d.id,
-                            reaction: '☑'
-                        });
                     });
                     brainlets = brainletArray;
                 }
@@ -174,7 +161,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
 
         // unbrainlet command
         if (cmd === 'unbrainlet') {
-            if (admin.indexOf(userID) > -1) {
+            if (config.adminID.indexOf(userID) > -1) {
                 if (args[0] === '<' && args[1] === '@') {
                     let formerBrainlet;
                     let brainletID = (args.slice(0, -1)).slice(2);
@@ -186,12 +173,10 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                     let brainletArray = brainlets;
                     if (brainletArray.indexOf(formerBrainlet) === -1) {
                         console.log('** requested brainlet removal that was not in the array');
-                        bot.addReaction({
-                            channelID: channelID,
-                            messageID: evt.d.id,
-                            reaction: '🚫'
-                        });
+                        botReact(channelID, evt, '🚫');
                     } else {
+                        console.log('** brainlet removed')
+                        botReact(channelID, evt, '☑');
                         for (var i = brainletArray.length - 1; i >= 0; i--) {
                             if (brainletArray[i] === formerBrainlet) {
                                 brainletArray.splice(i, 1);
@@ -199,25 +184,20 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                         }
                         fs.writeFile('./brainlets.json', JSON.stringify(brainletArray), function(err) {
                             if (err) throw err;
-                            console.log('** brainlet removed')
                         });
                         brainlets = brainletArray;
                     }
                 };
             } else {
+                botReact(channelID, evt, {name: 'brainlet', id: '556550665095086080'});
                 let brainletArray = brainlets;
                 if (brainletArray.indexOf(userID) > -1) {
-                    console.log('** automatic requested brainlet that is already in the array');
+                    console.log('** unauthorized user that is already in the array');
                 } else {
                     brainletArray.push(userID);
                     fs.writeFile('./brainlets.json', JSON.stringify(brainletArray), function(err) {
                         if (err) throw err;
                         console.log('** automatic new brainlet stored')
-                        bot.addReaction({
-                            channelID: channelID,
-                            messageID: evt.d.id,
-                            reaction: '☑'
-                        });
                     });
                     brainlets = brainletArray;
                 }
@@ -225,19 +205,16 @@ bot.on('message', (user, userID, channelID, message, evt) => {
         };
 
         if (cmd === 'clearbrainlets') {
-            if (admin.indexOf(userID) > -1) {
+            if (config.adminID.indexOf(userID) > -1) {
+                botReact(channelID, evt, '☑');
                 const emptyArray = [];
                 brainlets = emptyArray;
                 fs.writeFile('./brainlets.json', JSON.stringify(emptyArray), function(err) {
                     if (err) throw err;
                     console.log('** all brainlets deleted');
                 })
-                bot.addReaction({
-                    channelID: channelID,
-                    messageID: evt.d.id,
-                    reaction: '☑'
-                });
             } else {
+                botReact(channelID, evt, {name: 'brainlet', id: '556550665095086080'});
                 let brainletArray = brainlets;
                 if (brainletArray.indexOf(userID) > -1) {
                     console.log('** automatic requested brainlet that is already in the array');
@@ -246,11 +223,6 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                     fs.writeFile('./brainlets.json', JSON.stringify(brainletArray), function(err) {
                         if (err) throw err;
                         console.log('** automatic new brainlet stored')
-                        bot.addReaction({
-                            channelID: channelID,
-                            messageID: evt.d.id,
-                            reaction: '☑'
-                        });
                     });
                     brainlets = brainletArray;
                 }
@@ -262,17 +234,14 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             // check that none of the variables are undefined
             if (Globals.networkInfo === undefined) {
                 console.log('** Undefined difficulty requested');
+                botReact(channelID, evt, '🚫');
                 bot.sendMessage({
                     to: channelID,
                     message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
                 });
             } else {
                 console.log('** Current difficulty message sent');
-                bot.addReaction({
-                    channelID: channelID,
-                    messageID: evt.d.id,
-                    reaction: '☑'
-                });
+                botReact(channelID, evt, '☑');
                 bot.sendMessage({
                     to: channelID,
                     message: `The current difficulty is **${numberWithCommas(Globals.networkInfo.difficulty)}**`
@@ -285,17 +254,14 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             // check that none of the variables are undefined
             if (Globals.networkInfo === undefined) {
                 console.log('** Undefined hashrate requested');
+                botReact(channelID, evt, '🚫');
                 bot.sendMessage({
                     to: channelID,
                     message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
                 });
             } else {
                 console.log('** Current hashrate message sent');
-                bot.addReaction({
-                    channelID: channelID,
-                    messageID: evt.d.id,
-                    reaction: '☑'
-                });
+                botReact(channelID, evt, '☑');
                 bot.sendMessage({
                     to: channelID,
                     message: `The current global hashrate is **${((Globals.networkInfo.difficulty / 30) / 1000000).toFixed(2)} MH/s**`
@@ -308,17 +274,14 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             // check that none of the variables are undefined
             if (Globals.networkInfo.height === undefined) {
                 console.log('** Undefined block height requested');
+                botReact(channelID, evt, '🚫');
                 bot.sendMessage({
                     to: channelID,
                     message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
                 });
             } else {
                 console.log('** Current block height message sent');
-                bot.addReaction({
-                    channelID: channelID,
-                    messageID: evt.d.id,
-                    reaction: '☑'
-                });
+                botReact(channelID, evt, '☑');
                 bot.sendMessage({
                     to: channelID,
                     message: `The current  block height is **${numberWithCommas(Globals.networkInfo.height)}**`
@@ -329,11 +292,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
         // help command
         if (cmd === 'help') {
             console.log('** Help menu message sent');
-            bot.addReaction({
-                channelID: channelID,
-                messageID: evt.d.id,
-                reaction: '☑'
-            });
+            botReact(channelID, evt, '☑');
             bot.sendMessage({
                 to: channelID,
                 message: '\`\`\`!difficulty   :   Displays current difficulty.\n' +
@@ -353,17 +312,14 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             // check that none of the variables are undefined
             if (Globals.geckoInfo === undefined) {
                 console.log('** Undefined lambo price requested');
+                botReact(channelID, evt, '🚫');
                 bot.sendMessage({
                     to: channelID,
                     message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
                 });
             } else {
                 console.log('** Current lambo price message sent');
-                bot.addReaction({
-                    channelID: channelID,
-                    messageID: evt.d.id,
-                    reaction: '☑'
-                });
+                botReact(channelID, evt, '☑');
                 bot.sendMessage({
                     to: channelID,
                     message: `A 2019 Lamborghini Huracan costs roughly **${numberWithCommas((199800 / Globals.geckoInfo.current_price).toFixed(2))} TRTL**`
@@ -376,16 +332,13 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             // check that none of the variables are undefined
             if (Globals.networkInfo.height === undefined) {
                 console.log('** Undefined market cap requested');
+                botReact(channelID, evt, '🚫');
                 bot.sendMessage({
                     to: channelID,
                     message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
                 });
             } else {
-                bot.addReaction({
-                    channelID: channelID,
-                    messageID: evt.d.id,
-                    reaction: '☑'
-                });
+                botReact(channelID, evt, '☑');
                 console.log('** Current market cap message sent');
                 bot.sendMessage({
                     to: channelID,
@@ -398,12 +351,14 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             // check that none of the variables are undefined
             if (Globals.networkInfo === undefined || Globals.transactionInfo === undefined) {
                 console.log('** Undefined network info requested');
+                botReact(channelID, evt, '🚫');
                 bot.sendMessage({
                     to: channelID,
                     message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
                 });
             } else {
                 console.log('** Network info message sent');
+                botReact(channelID, evt, '☑');
                 bot.sendMessage({
                     to: channelID,
                     embed: {
@@ -437,17 +392,14 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             // check that none of the variables are undefined
             if (Globals.geckoInfo === undefined || Globals.geckoLTCPrice === undefined || Globals.geckoBTCPrice === undefined) {
                 console.log('** Undefined price info requested');
+                botReact(channelID, evt, '🚫');
                 bot.sendMessage({
                     to: channelID,
                     message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
                 });
             } else {
                 console.log('** Price info message sent');
-                bot.addReaction({
-                    channelID: channelID,
-                    messageID: evt.d.id,
-                    reaction: '☑'
-                })
+                botReact(channelID, evt, '☑');
                 bot.sendMessage({
                     to: channelID,
                     embed: {
@@ -486,17 +438,14 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             // check that none of the variables are undefined
             if (Globals.networkInfo === undefined) {
                 console.log('** Undefined supply requested');
+                botReact(channelID, evt, '🚫');
                 bot.sendMessage({
                     to: channelID,
                     message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
                 });
             } else {
                 console.log('** Supply message sent');
-                bot.addReaction({
-                    channelID: channelID,
-                    messageID: evt.d.id,
-                    reaction: '☑'
-                });
+                botReact(channelID, evt, '☑');
                 bot.sendMessage({
                     to: channelID,
                     message: `The current circulating supply is **${(Globals.geckoInfo.circulating_supply / 1000000000).toFixed(2)}B TRTL**`
@@ -507,6 +456,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
         // whine command
         if (cmd === 'whine') {
             console.log('** Told someone to nut up and stop being a sniveling bitch');
+            botReact(channelID, evt, '🚫');
             bot.sendMessage({
                 to: channelID,
                 message: 'Don\'t be such a sniveling little bitch.'
@@ -518,17 +468,14 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             // check that none of the variables are undefined
             if (Globals.geckoInfo === undefined) {
                 console.log('** Undefined viper price requested');
+                botReact(channelID, evt, '🚫');
                 bot.sendMessage({
                     to: channelID,
                     message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
                 });
             } else {
                 console.log('** Current viper price message sent');
-                bot.addReaction({
-                    channelID: channelID,
-                    messageID: evt.d.id,
-                    reaction: '☑'
-                });
+                botReact(channelID, evt, '☑');
                 bot.sendMessage({
                     to: channelID,
                     message: `A Dodge Viper costs roughly **${numberWithCommas((150000 / Globals.geckoInfo.current_price).toFixed(2))} TRTL**`
@@ -538,21 +485,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
     }
 });
 
-// get data from http request and store it in variable
-async function getData(apiURL, name) {
-    const requestOptions = {
-        method: 'GET',
-        uri: apiURL,
-        headers: {},
-        json: true,
-        gzip: true
-    };
-    try {
-        const result = await request(requestOptions);
-        // console.log(apiURL, name, result);
-        return result;
-    } catch (err) {
-        console.log(`Request failed, ${name} API call error: \n`, err);
-        return undefined;
-    }
-}
+// on log in
+bot.on('ready', (evt) => {
+    console.log(`** Connected, logged in as ${bot.username}-${bot.id} and listening for commands.`);
+});
