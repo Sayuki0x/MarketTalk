@@ -1,10 +1,9 @@
 ﻿// requires
 const discord = require('discord.io');
-const request = require('request-promise');
 const fs = require('fs');
 const config = require('./config.json')
-let brainlets = require('./brainlets.json');
 const Data = require('./data.js');
+let brainlets = require('./brainlets.json');
 
 const data = new Data();
 
@@ -37,36 +36,16 @@ function getGainsEmoji() {
 }
 
 // Initialize Discord Bot
-init();
+//init();
 
-// refreshes variables every 5s
-async function init() {
+(async function init() {
     await data.classinit();
-}
-
-// get data from http request and store it in variable
-async function getData(apiURL, name) {
-    const requestOptions = {
-        method: 'GET',
-        uri: apiURL,
-        headers: {},
-        json: true,
-        gzip: true
-    };
-    try {
-        const result = await request(requestOptions);
-        // console.log(apiURL, name, result);
-        return result;
-    } catch (err) {
-        console.log(`Request failed, ${name} API call error: \n`, err);
-        return undefined;
-    }
-}
+})();
 
 // reconnect if disconected
 bot.on('disconnect', function() {
     console.log("** Bot disconnected, reconnecting...");
-    bot.connect() //Auto reconnect
+    bot.connect(); //Auto reconnect
 });
 
 // error logging
@@ -223,10 +202,10 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                     '!help         :   Displays this menu.\n' +
                     '!mcap         :   Displays current market capitilization.\n' +
                     '!lambo        :   Displays current price of new lambo.\n' +
-                    '!viper        :   Displays current price of a new viper.\n' +
                     '!network      :   Displays network information.\n' +
                     '!price        :   Displays price information.\n' +
-                    '!supply       :   Displays current network hashrate.\n\`\`\`'
+                    '!supply       :   Displays current network hashrate.\n' +
+                    '!viper        :   Displays current price of a new viper.\`\`\`'
             });
         }
 
