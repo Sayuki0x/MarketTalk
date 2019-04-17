@@ -1,4 +1,4 @@
-module.exports.Constants = {
+module.exports = {
     "brainletEmoji" : {
         name: 'brainlet',
         id: '556550665095086080'
