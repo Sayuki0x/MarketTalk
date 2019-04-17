@@ -11,6 +11,90 @@ const bot = new discord.Client({
     autorun: true
 });
 
+data.init();
+
+// reconnect if disconected
+bot.on('disconnect', function() {
+    console.log("** Bot disconnected, reconnecting...");
+    bot.connect(); //Auto reconnect
+});
+
+// error logging
+bot.on('error', console.error);
+
+// on message handling
+bot.on('message', (user, userID, channelID, message, evt) => {
+
+    // brainlet users in the brainlet array
+    if (brainlets.indexOf(userID) > -1) {
+        botReact(channelID, evt, {
+            name: 'brainlet',
+            id: '556550665095086080'
+        });
+    }
+
+    // listen for messages that will start with `!`
+    if (message[0] === '!') {
+        const [cmd, args] = message.substring(1).split(' ');
+        switch (cmd) {
+            case 'difficulty': {
+                handleDifficulty(channelID, evt, userID, args);
+                break;
+            }
+            case 'brainlet': {
+                handleBrainlet(channelID, evt, userID, args);
+                break;
+            }
+            case 'clearbrainlets': {
+                handleClearBrainlets(channelID, evt, userID, args);
+                break;
+            }
+            case 'hashrate': {
+                handleHashrate(channelID, evt, userID, args);
+                break;
+            }
+            case 'height': {
+                handleHeight(channelID, evt, userID, args);
+                break;
+            }
+            case 'help': {
+                handleHelp(channelID, evt, userID, args);
+                break;
+            }
+            case 'lambo':
+            case 'viper': {
+                handleCar(channelID, evt, userID, args, cmd);
+                break;
+            }
+            case 'mcap': {
+                handleMcap(channelID, evt, userID, args);
+                break;
+            }
+            case 'network': {
+                handleNetwork(channelID, evt, userID, args);
+                break;
+            }
+            case 'price': {
+                handlePrice(channelID, evt, userID, args);
+                break;
+            }
+            case 'supply': {
+                handleSupply(channelID, evt, userID, args);
+                break;
+            }
+            case 'unbrainlet': {
+                handleUnbrainlet(channelID, evt, userID, args);
+                break;
+            }
+        }
+    }
+});
+
+// on log in
+bot.on('ready', (evt) => {
+    console.log(`** Connected, logged in as ${bot.username}-${bot.id} and listening for commands.`);
+});
+
 // message handling
 function handleBrainlet(channelID, evt, userID, args) {
     // check that user has permissions
@@ -381,102 +465,3 @@ function getGainsEmoji() {
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
-
-// reconnect if disconected
-bot.on('disconnect', function() {
-    console.log("** Bot disconnected, reconnecting...");
-    bot.connect(); //Auto reconnect
-});
-
-// error logging
-bot.on('error', console.error);
-
-// on message handling
-bot.on('message', (user, userID, channelID, message, evt) => {
-
-    // brainlet users in the brainlet array
-    if (brainlets.indexOf(userID) > -1) {
-        botReact(channelID, evt, {
-            name: 'brainlet',
-            id: '556550665095086080'
-        });
-    }
-
-    // listen for messages that will start with `!`
-    if (message[0] === '!') {
-        const [cmd, args] = message.substring(1).split(' ');
-        switch (cmd) {
-            case 'difficulty':
-                {
-                    handleDifficulty(channelID, evt, userID, args);
-                    break;
-                }
-            case 'brainlet':
-                {
-                    handleBrainlet(channelID, evt, userID, args);
-                    break;
-                }
-            case 'clearbrainlets':
-                {
-                    handleClearBrainlets(channelID, evt, userID, args);
-                    break;
-                }
-            case 'hashrate':
-                {
-                    handleHashrate(channelID, evt, userID, args);
-                    break;
-                }
-            case 'height':
-                {
-                    handleHeight(channelID, evt, userID, args);
-                    break;
-                }
-            case 'help':
-                {
-                    handleHelp(channelID, evt, userID, args);
-                    break;
-                }
-            case 'lambo':
-            case 'viper':
-                {
-                    console.log(cmd);
-                    handleCar(channelID, evt, userID, args, cmd);
-                    break;
-                }
-            case 'mcap':
-                {
-                    handleMcap(channelID, evt, userID, args);
-                    break;
-                }
-            case 'network':
-                {
-                    handleNetwork(channelID, evt, userID, args);
-                    break;
-                }
-            case 'price':
-                {
-                    handlePrice(channelID, evt, userID, args);
-                    break;
-                }
-            case 'supply':
-                {
-                    handleSupply(channelID, evt, userID, args);
-                    break;
-                }
-            case 'unbrainlet':
-                {
-                    handleUnbrainlet(channelID, evt, userID, args);
-                    break;
-                }
-        }
-    }
-});
-
-// on log in
-bot.on('ready', (evt) => {
-    console.log(`** Connected, logged in as ${bot.username}-${bot.id} and listening for commands.`);
-});
-
-(async function init() {
-    await data.init();
-})();
