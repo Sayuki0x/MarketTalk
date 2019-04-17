@@ -42,7 +42,10 @@ function handleBrainlet(channelID, evt, userID, args) {
         };
     } else {
         console.log('** brainletted unauthorized user');
-        botReact(channelID, evt, {name: 'brainlet', id: '556550665095086080'});
+        botReact(channelID, evt, {
+            name: 'brainlet',
+            id: '556550665095086080'
+        });
         let brainletArray = brainlets;
         if (brainletArray.indexOf(userID) > -1) {
             console.log('** automatic requested brainlet that is already in the array');
@@ -67,7 +70,10 @@ function handleClearBrainlets(channelID, evt, userID, args) {
             console.log('** all brainlets deleted');
         })
     } else {
-        botReact(channelID, evt, {name: 'brainlet', id: '556550665095086080'});
+        botReact(channelID, evt, {
+            name: 'brainlet',
+            id: '556550665095086080'
+        });
         let brainletArray = brainlets;
         if (brainletArray.indexOf(userID) > -1) {
             console.log('** automatic requested brainlet that is already in the array');
@@ -288,7 +294,7 @@ function handlePrice(channelID, evt, userID, args) {
 }
 
 function handleSupply(channelID, evt, userID, args) {
-// check that none of the variables are undefined
+    // check that none of the variables are undefined
     if (data.networkInfo === undefined) {
         console.log('** Undefined supply requested');
         botReact(channelID, evt, '🚫');
@@ -335,7 +341,10 @@ function handleUnbrainlet(channelID, evt, userID, args) {
             }
         };
     } else {
-        botReact(channelID, evt, {name: 'brainlet', id: '556550665095086080'});
+        botReact(channelID, evt, {
+            name: 'brainlet',
+            id: '556550665095086080'
+        });
         let brainletArray = brainlets;
         if (brainletArray.indexOf(userID) > -1) {
             console.log('** unauthorized user that is already in the array');
@@ -387,63 +396,78 @@ bot.on('message', (user, userID, channelID, message, evt) => {
 
     // brainlet users in the brainlet array
     if (brainlets.indexOf(userID) > -1) {
-        botReact(channelID, evt, {name: 'brainlet', id: '556550665095086080'});
+        botReact(channelID, evt, {
+            name: 'brainlet',
+            id: '556550665095086080'
+        });
     }
 
     // listen for messages that will start with `!`
     if (message[0] === '!') {
         const [cmd, args] = message.substring(1).split(' ');
         switch (cmd) {
-            case 'difficulty': {
-                handleDifficulty(channelID, evt, userID, args);
-                break;
-            }
-            case 'brainlet': {
-                handleBrainlet(channelID, evt, userID, args);
-                break;
-            }
-            case 'clearbrainlets': {
-                handleClearBrainlets(channelID, evt, userID, args);
-                break;
-            }
-            case 'hashrate': {
-                handleHashrate(channelID, evt, userID, args);
-                break;
-            }
-            case 'height': {
-                handleHeight(channelID, evt, userID, args);
-                break;
-            }
-            case 'help': {
-                handleHelp(channelID, evt, userID, args);
-                break;
-            }
+            case 'difficulty':
+                {
+                    handleDifficulty(channelID, evt, userID, args);
+                    break;
+                }
+            case 'brainlet':
+                {
+                    handleBrainlet(channelID, evt, userID, args);
+                    break;
+                }
+            case 'clearbrainlets':
+                {
+                    handleClearBrainlets(channelID, evt, userID, args);
+                    break;
+                }
+            case 'hashrate':
+                {
+                    handleHashrate(channelID, evt, userID, args);
+                    break;
+                }
+            case 'height':
+                {
+                    handleHeight(channelID, evt, userID, args);
+                    break;
+                }
+            case 'help':
+                {
+                    handleHelp(channelID, evt, userID, args);
+                    break;
+                }
             case 'lambo':
-            case 'viper': {
-                console.log(cmd);
-                handleCar(channelID, evt, userID, args, cmd);
-                break;
-            }
-            case 'mcap': {
-                handleMcap(channelID, evt, userID, args);
-                break;
-            }
-            case 'network': {
-                handleNetwork(channelID, evt, userID, args);
-                break;
-            }
-            case 'price': {
-                handlePrice(channelID, evt, userID, args);
-                break;
-            }
-            case 'supply': {
-                handleSupply(channelID, evt, userID, args);
-                break;
-            }
-            case 'unbrainlet': {
-                handleUnbrainlet(channelID, evt, userID, args);
-                break;
-            }
+            case 'viper':
+                {
+                    console.log(cmd);
+                    handleCar(channelID, evt, userID, args, cmd);
+                    break;
+                }
+            case 'mcap':
+                {
+                    handleMcap(channelID, evt, userID, args);
+                    break;
+                }
+            case 'network':
+                {
+                    handleNetwork(channelID, evt, userID, args);
+                    break;
+                }
+            case 'price':
+                {
+                    handlePrice(channelID, evt, userID, args);
+                    break;
+                }
+            case 'supply':
+                {
+                    handleSupply(channelID, evt, userID, args);
+                    break;
+                }
+            case 'unbrainlet':
+                {
+                    handleUnbrainlet(channelID, evt, userID, args);
+                    break;
+                }
         }
     }
 });
