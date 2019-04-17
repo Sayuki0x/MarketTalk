@@ -80,6 +80,10 @@ bot.on('message', (user, userID, channelID, message, evt) => {
                 handleSupply(channelID, evt, userID, args);
                 break;
             }
+            case 'timesup': {
+                handleTimesup(channelID, evt, userID, args);
+                break;
+            }
             case 'unbrainlet': {
                 handleUnbrainlet(channelID, evt, userID, args);
                 break;
@@ -339,6 +343,13 @@ function handleSupply(channelID, evt, userID, args) {
             message: `The current circulating supply is **${(data.geckoInfo.circulating_supply / 1000000000).toFixed(2)}B TRTL**`
         });
     }
+}
+
+function handleTimesup(channelID, evt, userID, args) {
+    bot.sendMessage({
+        to: '508753891689496576',
+        message: 'TIME\'S UP ASSHOLES!'
+    })
 }
 
 function handleUnbrainlet(channelID, evt, userID, args) {
