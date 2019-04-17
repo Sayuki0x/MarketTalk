@@ -260,7 +260,7 @@ function handleNetwork(channelID, evt, userID, args) {
         return;
     } else {
         console.log('** Network info message sent');
-        botReact(channelID, evt, '☑');
+        botReact(channelID, evt, '⚡');
         bot.sendMessage({
             to: channelID,
             embed: {
