@@ -34,6 +34,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
     // listen for messages that will start with `!`
     if (message[0] === '!') {
         const [cmd, args] = message.substring(1).split(' ');
+        const echo = message.substring(6);
         switch (cmd) {
             case 'difficulty': {
                 handleDifficulty(channelID, evt, userID, args);
@@ -45,6 +46,10 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             }
             case 'clearbrainlets': {
                 handleClearBrainlets(channelID, evt, userID, args);
+                break;
+            }
+            case 'echo': {
+                handleEcho(channelID, evt, userID, echo);
                 break;
             }
             case 'hashrate': {
@@ -78,10 +83,6 @@ bot.on('message', (user, userID, channelID, message, evt) => {
             }
             case 'supply': {
                 handleSupply(channelID, evt, userID, args);
-                break;
-            }
-            case 'timesup': {
-                handleTimesup(channelID, evt, userID, args);
                 break;
             }
             case 'unbrainlet': {
@@ -345,10 +346,10 @@ function handleSupply(channelID, evt, userID, args) {
     }
 }
 
-function handleTimesup(channelID, evt, userID, args) {
+function handleEcho(channelID, evt, userID, echo) {
     bot.sendMessage({
-        to: '508753891689496576',
-        message: 'TIME\'S UP ASSHOLES!'
+        to: Constants.fit,
+        message: `${echo}`
     })
 }
 
