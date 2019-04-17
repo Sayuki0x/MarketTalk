@@ -3,6 +3,7 @@ const discord = require('discord.io');
 const fs = require('fs');
 const config = require('./config.json')
 const Data = require('./data.js');
+const Constants = require('./constants.js');
 let brainlets = require('./brainlets.json');
 
 const data = new Data();
@@ -27,10 +28,7 @@ bot.on('message', (user, userID, channelID, message, evt) => {
 
     // brainlet users in the brainlet array
     if (brainlets.indexOf(userID) > -1) {
-        botReact(channelID, evt, {
-            name: 'brainlet',
-            id: '556550665095086080'
-        });
+        botReact(channelID, evt, Constants.brainletEmoji);
     }
 
     // listen for messages that will start with `!`
@@ -126,10 +124,7 @@ function handleBrainlet(channelID, evt, userID, args) {
         };
     } else {
         console.log('** brainletted unauthorized user');
-        botReact(channelID, evt, {
-            name: 'brainlet',
-            id: '556550665095086080'
-        });
+        botReact(channelID, evt, Constants.brainletEmoji);
         let brainletArray = brainlets;
         if (brainletArray.indexOf(userID) > -1) {
             console.log('** automatic requested brainlet that is already in the array');
@@ -154,10 +149,7 @@ function handleClearBrainlets(channelID, evt, userID, args) {
             console.log('** all brainlets deleted');
         })
     } else {
-        botReact(channelID, evt, {
-            name: 'brainlet',
-            id: '556550665095086080'
-        });
+        botReact(channelID, evt, Constants.brainletEmoji);
         let brainletArray = brainlets;
         if (brainletArray.indexOf(userID) > -1) {
             console.log('** automatic requested brainlet that is already in the array');
@@ -173,13 +165,8 @@ function handleClearBrainlets(channelID, evt, userID, args) {
 }
 
 function handleDifficulty(channelID, evt, userID, args) {
-    if (data.networkInfo.difficulty === undefined) {
-        console.log('** Undefined difficulty requested');
-        botReact(channelID, evt, '🚫');
-        bot.sendMessage({
-            to: channelID,
-            message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
-        });
+    if (!checkDataAvailable(data.networkInfo.difficulty, channelID, evt) === undefined) {
+        return;
     } else {
         console.log('** Current difficulty message sent');
         botReact(channelID, evt, '☑');
@@ -191,14 +178,8 @@ function handleDifficulty(channelID, evt, userID, args) {
 }
 
 function handleHashrate(channelID, evt, userID, args) {
-    // check that none of the variables are undefined
-    if (data.networkInfo === undefined) {
-        console.log('** Undefined hashrate requested');
-        botReact(channelID, evt, '🚫');
-        bot.sendMessage({
-            to: channelID,
-            message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
-        });
+    if (!checkDataAvailable(data.networkInfo.difficulty, channelID, evt) === undefined) {
+        return;
     } else {
         console.log('** Current hashrate message sent');
         botReact(channelID, evt, '☑');
@@ -210,14 +191,8 @@ function handleHashrate(channelID, evt, userID, args) {
 }
 
 function handleHeight(channelID, evt, userID, args) {
-    // check that none of the variables are undefined
-    if (data.networkInfo.height === undefined) {
-        console.log('** Undefined block height requested');
-        botReact(channelID, evt, '🚫');
-        bot.sendMessage({
-            to: channelID,
-            message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
-        });
+    if (!checkDataAvailable(data.networkInfo.height, channelID, evt) === undefined) {
+        return;
     } else {
         console.log('** Current block height message sent');
         botReact(channelID, evt, '☑');
@@ -247,15 +222,9 @@ function handleHelp(channelID, evt, userID, args) {
 }
 
 function handleCar(channelID, evt, userID, args, cmd) {
-    // check that none of the variables are undefined
     let carInfo = [];
-    if (data.geckoInfo === undefined) {
-        console.log('** Undefined lambo price requested');
-        botReact(channelID, evt, '🚫');
-        bot.sendMessage({
-            to: channelID,
-            message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
-        });
+    if (!checkDataAvailable(data.geckoInfo.current_price, channelID, evt) === undefined) {
+        return;
     } else {
         if (cmd === 'lambo') {
             carInfo[0] = 199800;
@@ -264,7 +233,7 @@ function handleCar(channelID, evt, userID, args, cmd) {
             carInfo[0] = 150000;
             carInfo[1] = 'Dodge Viper';
         }
-        console.log('** Current lambo price message sent');
+        console.log(`** Current ${cmd} price message sent`);
         botReact(channelID, evt, '☑');
         bot.sendMessage({
             to: channelID,
@@ -274,14 +243,8 @@ function handleCar(channelID, evt, userID, args, cmd) {
 }
 
 function handleMcap(channelID, evt, userID, args) {
-    // check that none of the variables are undefined
-    if (data.networkInfo.height === undefined) {
-        console.log('** Undefined market cap requested');
-        botReact(channelID, evt, '🚫');
-        bot.sendMessage({
-            to: channelID,
-            message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
-        });
+    if (!checkDataAvailable(data.geckoInfo.market_cap, channelID, evt) === undefined) {
+        return;
     } else {
         botReact(channelID, evt, '☑');
         console.log('** Current market cap message sent');
@@ -293,23 +256,17 @@ function handleMcap(channelID, evt, userID, args) {
 }
 
 function handleNetwork(channelID, evt, userID, args) {
-    // check that none of the variables are undefined
-    if (data.networkInfo === undefined || data.transactionInfo === undefined) {
-        console.log('** Undefined network info requested');
-        botReact(channelID, evt, '🚫');
-        bot.sendMessage({
-            to: channelID,
-            message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
-        });
+    if (!checkDataAvailable(data.networkInfo, channelID, evt) === undefined || !checkDataAvailable(data.transactionInfo.length, channelID, evt) === undefined || !checkDataAvailable(data.totalNodes.globalData.nodeCount, channelID, evt) === undefined) {
+        return;
     } else {
         console.log('** Network info message sent');
         botReact(channelID, evt, '☑');
         bot.sendMessage({
             to: channelID,
             embed: {
-                color: 3066993,
+                color: Constants.embedColor,
                 thumbnail: {
-                    url: 'https://raw.githubusercontent.com/turtlecoin/turtlecoin.lol/master/images/favicons/apple-touch-icon-120x120.png',
+                    url: Constants.embedLogo,
                 },
                 fields: [{
                         name: 'Network Stats',
@@ -333,23 +290,17 @@ function handleNetwork(channelID, evt, userID, args) {
 }
 
 function handlePrice(channelID, evt, userID, args) {
-    // check that none of the variables are undefined
-    if (data.geckoInfo === undefined || data.geckoLTCPrice === undefined || data.geckoBTCPrice === undefined) {
-        console.log('** Undefined price info requested');
-        botReact(channelID, evt, '🚫');
-        bot.sendMessage({
-            to: channelID,
-            message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
-        });
+    if (!checkDataAvailable(data.geckoInfo, channelID, evt) === undefined || !checkDataAvailable(data.geckoBTCPrice, channelID, evt) === undefined || !checkDataAvailable(data.geckoLTCPrice, channelID, evt) === undefined || !checkDataAvailable(data.bitcoinInfo, channelID, evt) === undefined || !checkDataAvailable(data.litecoinInfo, channelID, evt) === undefined) {
+        return;
     } else {
         console.log('** Price info message sent');
         botReact(channelID, evt, getGainsEmoji());
         bot.sendMessage({
             to: channelID,
             embed: {
-                color: 3066993,
+                color: Constants.embedColor,
                 thumbnail: {
-                    url: 'https://raw.githubusercontent.com/turtlecoin/turtlecoin.lol/master/images/favicons/apple-touch-icon-120x120.png',
+                    url: Constants.embedLogo,
                 },
                 fields: [{
                         name: "Rank",
@@ -378,14 +329,8 @@ function handlePrice(channelID, evt, userID, args) {
 }
 
 function handleSupply(channelID, evt, userID, args) {
-    // check that none of the variables are undefined
-    if (data.networkInfo === undefined) {
-        console.log('** Undefined supply requested');
-        botReact(channelID, evt, '🚫');
-        bot.sendMessage({
-            to: channelID,
-            message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
-        });
+    if (!checkDataAvailable(data.geckoInfo.circulating_supply, channelID, evt) === undefined) {
+        return;
     } else {
         console.log('** Supply message sent');
         botReact(channelID, evt, '☑');
@@ -425,10 +370,7 @@ function handleUnbrainlet(channelID, evt, userID, args) {
             }
         };
     } else {
-        botReact(channelID, evt, {
-            name: 'brainlet',
-            id: '556550665095086080'
-        });
+        botReact(channelID, evt, Constants.brainletEmoji);
         let brainletArray = brainlets;
         if (brainletArray.indexOf(userID) > -1) {
             console.log('** unauthorized user that is already in the array');
@@ -454,14 +396,22 @@ function botReact(channelID, evt, reaction) {
 
 // function to decide emoji to print
 function getGainsEmoji() {
-    if (data.geckoInfo.price_change_percentage_24h > 0) {
-        return '📈';
-    } else {
-        return '📉';
-    }
+    return data.geckoInfo.price_change_percentage_24h > 0 ? '📈' : '📉';
 }
 
 // function to format numbers with commas like currency
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+// check that data is defined
+function checkDataAvailable(item, channelID, evt) {
+    if (item === undefined) {
+        botReact(channelID, evt, '🚫');
+        bot.sendMessage({
+            to: channelID,
+            message: 'Whoops! I\'m still gathering data for you, please try again later. 😄'
+        });
+    }
+    return item !== undefined;
 }
