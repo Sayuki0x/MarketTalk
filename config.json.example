@@ -1,0 +1,4 @@
+{
+    "adminID" : ["admin userID here"],
+    "authtoken" : "discord auth token here"
+} 

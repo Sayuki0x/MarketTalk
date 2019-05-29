@@ -62,3 +62,4 @@ typings/
 
 # discord credentials
 auth.json
+config.json
